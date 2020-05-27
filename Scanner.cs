@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  REDPC
-//  DateTime: 26/05/2020 21:21:25
+//  DateTime: 27/05/2020 20:07:29
 //  UserName: MayRe
-//  GPLEX input file <D:\MINICompiler\kompilator.lex - 26/05/2020 21:17:44>
+//  GPLEX input file <D:\MINICompiler\kompilator.lex - 27/05/2020 20:05:33>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -20,6 +20,7 @@
 // Version 1.2.1 of 24-June-2013
 //
 //
+#define BACKUP
 #define PERSIST
 #define BYTEMODE
 
@@ -31,6 +32,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Diagnostics.CodeAnalysis;
 
+using MINICompiler;
 
 namespace GardensPoint
 {   
@@ -123,8 +125,8 @@ namespace GardensPoint
         
         enum Result {accept, noMatch, contextFound};
 
-        const int maxAccept = 11;
-        const int initial = 12;
+        const int maxAccept = 13;
+        const int initial = 14;
         const int eofNum = 0;
         const int goStart = -1;
         const int INITIAL = 0;
@@ -161,28 +163,96 @@ namespace GardensPoint
         }
     };
 
-    static int[] startState = new int[] {12, 0};
+    static int[] startState = new int[] {14, 0};
 
-    static Table[] NxS = new Table[13] {
+    static Table[] NxS = new Table[40] {
 /* NxS[   0] */ new Table(0, 0, 0, null), // Shortest string ""
-/* NxS[   1] */ new Table(0, 0, -1, null), // Shortest string "\x01"
-/* NxS[   2] */ new Table(0, 0, -1, null), // Shortest string "\t"
-/* NxS[   3] */ new Table(0, 0, -1, null), // Shortest string "\n"
-/* NxS[   4] */ new Table(0, 0, -1, null), // Shortest string "\x20"
-/* NxS[   5] */ new Table(0, 0, -1, null), // Shortest string "("
-/* NxS[   6] */ new Table(0, 0, -1, null), // Shortest string ")"
-/* NxS[   7] */ new Table(0, 0, -1, null), // Shortest string "*"
-/* NxS[   8] */ new Table(0, 0, -1, null), // Shortest string "+"
-/* NxS[   9] */ new Table(0, 0, -1, null), // Shortest string "-"
-/* NxS[  10] */ new Table(0, 0, -1, null), // Shortest string "/"
-/* NxS[  11] */ // Shortest string "0"
-      new Table(48, 10, -1, new sbyte[] {11, 11, 11, 11, 11, 11, 
-          11, 11, 11, 11}),
-/* NxS[  12] */ // Shortest string ""
-      new Table(9, 49, 1, new sbyte[] {2, 3, 1, 1, 1, 1, 
-          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-          1, 4, 1, 1, 1, 1, 1, 1, 1, 5, 6, 7, 8, 1, 9, 1, 
-          10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11}),
+/* NxS[   1] */ new Table(0, 0, -1, null), // Shortest string "\t"
+/* NxS[   2] */ new Table(0, 0, -1, null), // Shortest string "\n"
+/* NxS[   3] */ new Table(0, 0, -1, null), // Shortest string "\x20"
+/* NxS[   4] */ // Shortest string "0"
+      new Table(46, 12, -1, new sbyte[] {38, -1, 39, 39, 39, 39, 
+          39, 39, 39, 39, 39, 39}),
+/* NxS[   5] */ // Shortest string "1"
+      new Table(46, 12, -1, new sbyte[] {38, -1, 5, 5, 5, 5, 
+          5, 5, 5, 5, 5, 5}),
+/* NxS[   6] */ new Table(0, 0, -1, null), // Shortest string ";"
+/* NxS[   7] */ new Table(0, 0, -1, null), // Shortest string "{"
+/* NxS[   8] */ new Table(0, 0, -1, null), // Shortest string "}"
+/* NxS[   9] */ new Table(0, 0, -1, null), // Shortest string "write"
+/* NxS[  10] */ new Table(0, 0, -1, null), // Shortest string "TRUE"
+/* NxS[  11] */ new Table(0, 0, -1, null), // Shortest string "program"
+/* NxS[  12] */ // Shortest string "0.0"
+      new Table(48, 10, -1, new sbyte[] {12, 12, 12, 12, 12, 12, 
+          12, 12, 12, 12}),
+/* NxS[  13] */ new Table(0, 0, -1, null), // Shortest string "\"\""
+/* NxS[  14] */ // Shortest string ""
+      new Table(9, 117, -1, new sbyte[] {1, 2, -1, -1, -1, -1, 
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+          -1, 3, -1, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+          -1, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, -1, 6, -1, -1, -1, 
+          -1, -1, -1, -1, -1, -1, -1, 16, -1, -1, -1, -1, -1, -1, -1, -1, 
+          -1, -1, -1, -1, -1, 17, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+          -1, -1, -1, -1, -1, -1, -1, 18, -1, -1, -1, -1, -1, -1, -1, -1, 
+          -1, 19, -1, -1, -1, 20, -1, -1, 21, -1, -1, -1, 7, -1, 8}),
+/* NxS[  15] */ // Shortest string "\""
+      new Table(34, 89, -1, new sbyte[] {13, -1, -1, -1, -1, -1, 
+          -1, -1, -1, -1, -1, -1, -1, -1, 15, 15, 15, 15, 15, 15, 15, 15, 
+          15, 15, -1, -1, -1, -1, -1, -1, -1, 15, 15, 15, 15, 15, 15, 15, 
+          15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+          15, 15, 15, -1, -1, -1, -1, -1, -1, 15, 15, 15, 15, 15, 15, 15, 
+          15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 
+          15, 15, 15}),
+/* NxS[  16] */ // Shortest string "F"
+      new Table(65, 1, -1, new sbyte[] {36}),
+/* NxS[  17] */ // Shortest string "T"
+      new Table(82, 1, -1, new sbyte[] {34}),
+/* NxS[  18] */ // Shortest string "f"
+      new Table(97, 1, -1, new sbyte[] {32}),
+/* NxS[  19] */ // Shortest string "p"
+      new Table(114, 1, -1, new sbyte[] {27}),
+/* NxS[  20] */ // Shortest string "t"
+      new Table(114, 1, -1, new sbyte[] {25}),
+/* NxS[  21] */ // Shortest string "w"
+      new Table(114, 1, -1, new sbyte[] {22}),
+/* NxS[  22] */ // Shortest string "wr"
+      new Table(105, 1, -1, new sbyte[] {23}),
+/* NxS[  23] */ // Shortest string "wri"
+      new Table(116, 1, -1, new sbyte[] {24}),
+/* NxS[  24] */ // Shortest string "writ"
+      new Table(101, 1, -1, new sbyte[] {9}),
+/* NxS[  25] */ // Shortest string "tr"
+      new Table(117, 1, -1, new sbyte[] {26}),
+/* NxS[  26] */ // Shortest string "tru"
+      new Table(101, 1, -1, new sbyte[] {10}),
+/* NxS[  27] */ // Shortest string "pr"
+      new Table(111, 1, -1, new sbyte[] {28}),
+/* NxS[  28] */ // Shortest string "pro"
+      new Table(103, 1, -1, new sbyte[] {29}),
+/* NxS[  29] */ // Shortest string "prog"
+      new Table(114, 1, -1, new sbyte[] {30}),
+/* NxS[  30] */ // Shortest string "progr"
+      new Table(97, 1, -1, new sbyte[] {31}),
+/* NxS[  31] */ // Shortest string "progra"
+      new Table(109, 1, -1, new sbyte[] {11}),
+/* NxS[  32] */ // Shortest string "fa"
+      new Table(108, 1, -1, new sbyte[] {33}),
+/* NxS[  33] */ // Shortest string "fal"
+      new Table(115, 1, -1, new sbyte[] {26}),
+/* NxS[  34] */ // Shortest string "TR"
+      new Table(85, 1, -1, new sbyte[] {35}),
+/* NxS[  35] */ // Shortest string "TRU"
+      new Table(69, 1, -1, new sbyte[] {10}),
+/* NxS[  36] */ // Shortest string "FA"
+      new Table(76, 1, -1, new sbyte[] {37}),
+/* NxS[  37] */ // Shortest string "FAL"
+      new Table(83, 1, -1, new sbyte[] {35}),
+/* NxS[  38] */ // Shortest string "0."
+      new Table(48, 10, -1, new sbyte[] {12, 12, 12, 12, 12, 12, 
+          12, 12, 12, 12}),
+/* NxS[  39] */ // Shortest string "00"
+      new Table(46, 12, -1, new sbyte[] {38, -1, 39, 39, 39, 39, 
+          39, 39, 39, 39, 39, 39}),
     };
 
 int NextState() {
@@ -608,45 +678,49 @@ int NextState() {
     {
         case eofNum:
             switch (currentStart) {
-                case 12:
-return (int)Tokens.ENDL;
+                case 14:
+return (int)Tokens.Eof;
                     break;
             }
             if (yywrap())
                 return (int)Tokens.EOF;
             break;
-        case 1: // Recognized '.',	Shortest string "\x01"
-return (int)Tokens.ERROR;
-            break;
-        case 2: // Recognized '"\t"',	Shortest string "\t"
+        case 1: // Recognized '"\t"',	Shortest string "\t"
 { }
             break;
-        case 3: // Recognized '"\n"',	Shortest string "\n"
-return (int)Tokens.ENDL;
+        case 2: // Recognized '"\n"',	Shortest string "\n"
+return (int)Tokens.Endl;
             break;
-        case 4: // Recognized '" "',	Shortest string "\x20"
+        case 3: // Recognized '" "',	Shortest string "\x20"
 { }
             break;
-        case 5: // Recognized '"("',	Shortest string "("
-return (int)Tokens.OPEN_PAR;
+        case 4: // Recognized '{IntNum}',	Shortest string "0"
+        case 5: // Recognized '{IntNum}',	Shortest string "1"
+yylval.node = new IntNode(int.Parse(yytext)); return (int)Tokens.Int;
             break;
-        case 6: // Recognized '")"',	Shortest string ")"
-return (int)Tokens.CLOSE_PAR;
+        case 6: // Recognized '";"',	Shortest string ";"
+return (int)Tokens.Semicolon;
             break;
-        case 7: // Recognized '"*"',	Shortest string "*"
-return (int)Tokens.MULTIPLIES;
+        case 7: // Recognized '"{"',	Shortest string "{"
+return (int)Tokens.OpenBracket;
             break;
-        case 8: // Recognized '"+"',	Shortest string "+"
-return (int)Tokens.PLUS;
+        case 8: // Recognized '"}"',	Shortest string "}"
+return (int)Tokens.CloseBracket;
             break;
-        case 9: // Recognized '"-"',	Shortest string "-"
-return (int)Tokens.MINUS;
+        case 9: // Recognized '"write"',	Shortest string "write"
+return (int)Tokens.Write;
             break;
-        case 10: // Recognized '"/"',	Shortest string "/"
-return (int)Tokens.DIVIDES;
+        case 10: // Recognized '{Bool}',	Shortest string "TRUE"
+yylval.node = new BoolNode(bool.Parse(yytext)); return (int)Tokens.Bool;
             break;
-        case 11: // Recognized '{number}',	Shortest string "0"
-yylval = int.Parse(yytext); return (int)Tokens.NUMBER;
+        case 11: // Recognized '"program"',	Shortest string "program"
+return (int)Tokens.Program;
+            break;
+        case 12: // Recognized '{DoubleNum}',	Shortest string "0.0"
+yylval.node = new DoubleNode(double.Parse(yytext)); return (int)Tokens.Double;
+            break;
+        case 13: // Recognized '{String}',	Shortest string "\"\""
+yylval.node = new StringNode(yytext); return (int)Tokens.String;
             break;
         default:
             break;

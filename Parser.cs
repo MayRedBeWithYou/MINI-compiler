@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  REDPC
-// DateTime: 26/05/2020 21:21:25
+// DateTime: 27/05/2020 20:07:29
 // UserName: MayRe
-// Input file <D:\MINICompiler\kompilator.y - 26/05/2020 21:21:20>
+// Input file <D:\MINICompiler\kompilator.y - 27/05/2020 20:07:27>
 
 // options: lines gplex
 
@@ -16,18 +16,18 @@ using System.CodeDom.Compiler;
 using System.Globalization;
 using System.Text;
 using QUT.Gppg;
+using MINICompiler;
 
 namespace GardensPoint
 {
-public enum Tokens {error=2,EOF=3,Print=4,Exit=5,Assign=6,
-    Plus=7,Minus=8,Multiplies=9,Divides=10,OpenPar=11,ClosePar=12,
-    Endl=13,Eof=14,Error=15,Ident=16,IntNumber=17,RealNumber=18};
+public enum Tokens {error=2,EOF=3,Program=4,Write=5,Assign=6,
+    OpenBracket=7,CloseBracket=8,Semicolon=9,Endl=10,Eof=11,Error=12,
+    Ident=13,Int=14,Double=15,Bool=16,String=17};
 
 public struct ValueType
-#line 4 "D:\MINICompiler\kompilator.y"
+#line 6 "D:\MINICompiler\kompilator.y"
 {
-public string  val;
-public char    type;
+public Node node;
 }
 #line default
 // Abstract base class for GPLEX scanners
@@ -55,20 +55,49 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
 #pragma warning disable 649
   private static Dictionary<int, string> aliases;
 #pragma warning restore 649
-  private static Rule[] rules = new Rule[3];
-  private static State[] states = new State[3];
+  private static Rule[] rules = new Rule[12];
+  private static State[] states = new State[22];
   private static string[] nonTerms = new string[] {
-      "start", "$accept", };
+      "start", "$accept", "Anon@1", "Anon@2", "lines", "Anon@3", "Anon@4", "line", 
+      "Anon@5", };
 
   static Parser() {
-    states[0] = new State(-2,new int[]{-1,1});
+    states[0] = new State(new int[]{4,3},new int[]{-1,1});
     states[1] = new State(new int[]{3,2});
     states[2] = new State(-1);
+    states[3] = new State(new int[]{10,4});
+    states[4] = new State(-2,new int[]{-3,5});
+    states[5] = new State(new int[]{7,6});
+    states[6] = new State(new int[]{10,7});
+    states[7] = new State(-3,new int[]{-4,8});
+    states[8] = new State(new int[]{8,-6,10,-7,5,-7},new int[]{-5,9,-7,13});
+    states[9] = new State(new int[]{8,10});
+    states[10] = new State(-4,new int[]{-6,11});
+    states[11] = new State(new int[]{11,12});
+    states[12] = new State(-5);
+    states[13] = new State(new int[]{10,21,5,-9},new int[]{-8,14,-9,16});
+    states[14] = new State(new int[]{8,-6,10,-7,5,-7},new int[]{-5,15,-7,13});
+    states[15] = new State(-8);
+    states[16] = new State(new int[]{5,17});
+    states[17] = new State(new int[]{17,18});
+    states[18] = new State(new int[]{9,19});
+    states[19] = new State(new int[]{10,20});
+    states[20] = new State(-10);
+    states[21] = new State(-11);
 
     for (int sNo = 0; sNo < states.Length; sNo++) states[sNo].number = sNo;
 
     rules[1] = new Rule(-2, new int[]{-1,3});
-    rules[2] = new Rule(-1, new int[]{});
+    rules[2] = new Rule(-3, new int[]{});
+    rules[3] = new Rule(-4, new int[]{});
+    rules[4] = new Rule(-6, new int[]{});
+    rules[5] = new Rule(-1, new int[]{4,10,-3,7,10,-4,-5,8,-6,11});
+    rules[6] = new Rule(-5, new int[]{});
+    rules[7] = new Rule(-7, new int[]{});
+    rules[8] = new Rule(-5, new int[]{-7,-8,-5});
+    rules[9] = new Rule(-9, new int[]{});
+    rules[10] = new Rule(-8, new int[]{-9,5,17,9,10});
+    rules[11] = new Rule(-8, new int[]{10});
   }
 
   protected override void Initialize() {
@@ -83,10 +112,40 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
 #pragma warning disable 162, 1522
     switch (action)
     {
-      case 2: // start -> /* empty */
+      case 2: // Anon@1 -> /* empty */
 #line 14 "D:\MINICompiler\kompilator.y"
-        {
-		}
+                       {inc(); Console.WriteLine("Program found");}
+#line default
+        break;
+      case 3: // Anon@2 -> /* empty */
+#line 15 "D:\MINICompiler\kompilator.y"
+                       { inc(); Console.WriteLine("Opening bracket");}
+#line default
+        break;
+      case 4: // Anon@3 -> /* empty */
+#line 17 "D:\MINICompiler\kompilator.y"
+                   { inc(); Console.WriteLine("Closing bracket");}
+#line default
+        break;
+      case 5: // start -> Program, Endl, Anon@1, OpenBracket, Endl, Anon@2, lines, CloseBracket, 
+              //          Anon@3, Eof
+#line 17 "D:\MINICompiler\kompilator.y"
+                                                                       {Console.WriteLine("End of file. Lines: " + line);}
+#line default
+        break;
+      case 6: // lines -> /* empty */
+#line 19 "D:\MINICompiler\kompilator.y"
+          {Console.WriteLine("No more lines");}
+#line default
+        break;
+      case 7: // Anon@4 -> /* empty */
+#line 20 "D:\MINICompiler\kompilator.y"
+      {inc(); Console.WriteLine("Found line.");}
+#line default
+        break;
+      case 9: // Anon@5 -> /* empty */
+#line 22 "D:\MINICompiler\kompilator.y"
+         {Console.WriteLine("Found write.");}
 #line default
         break;
     }
@@ -103,7 +162,17 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
         return CharToString((char)terminal);
   }
 
-#line 17 "D:\MINICompiler\kompilator.y"
- #line default
+#line 28 "D:\MINICompiler\kompilator.y"
+
+public int line=0;
+
+public ProgramNode root;
+
+public Node current;
+
+public Parser(Scanner scanner) : base(scanner) { }
+
+public void inc() { line++;}
+#line default
 }
 }
