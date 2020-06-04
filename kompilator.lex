@@ -18,29 +18,31 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 "double"	{ return (int)Tokens.Double; }
 "bool"		{ return (int)Tokens.Bool; }
 
-"="			{ return (int)Tokens.Assign; }
-
-"+"			{ return (int)Tokens.Add; }
-"-"			{ return (int)Tokens.Sub; }
-"*"			{ return (int)Tokens.Mult; }
-"/"			{ return (int)Tokens.Div; }
-
 "&"			{ return (int)Tokens.BitAnd; }
 "&&"		{ return (int)Tokens.And; }
 "|"			{ return (int)Tokens.BitOr; }
 "||"		{ return (int)Tokens.Or; }
 
-"=="		{ return (int)Tokens.Comparison; }
-"!="		{ return (int)Tokens.Comparison; }
-"<"			{ return (int)Tokens.Comparison; }
-"<="		{ return (int)Tokens.Comparison; }
-">"			{ return (int)Tokens.Comparison; }
-">="		{ return (int)Tokens.Comparison; }
+"=="		{ yylval = new ComparisonNode(ComparisonType.Equal); return (int)Tokens.Comparison; }
+"!="		{ yylval = new ComparisonNode(ComparisonType.NotEqual); return (int)Tokens.Comparison; }
+"<"			{ yylval = new ComparisonNode(ComparisonType.Less); return (int)Tokens.Comparison; }
+"<="		{ yylval = new ComparisonNode(ComparisonType.LessOrEqual); return (int)Tokens.Comparison; }
+">"			{ yylval = new ComparisonNode(ComparisonType.Greater); return (int)Tokens.Comparison; }
+">="		{ yylval = new ComparisonNode(ComparisonType.GreaterOrEqual); return (int)Tokens.Comparison; }
 "!"			{ return (int)Tokens.Not;}
 "~"			{ return (int)Tokens.Tilde;}
 "(int)"		{ return (int)Tokens.IntCast;}
 "(double)"	{ return (int)Tokens.DoubleCast;}
 
+"="			{ return (int)Tokens.Assign; }
+
+"+"			{ yylval = new BinaryOpNode(BinaryOpTypes.Add); return (int)Tokens.Add; }
+"-"			{ yylval = new BinaryOpNode(BinaryOpTypes.Sub); return (int)Tokens.Sub; }
+"*"			{ yylval = new BinaryOpNode(BinaryOpTypes.Mult); return (int)Tokens.Mult; }
+"/"			{ yylval = new BinaryOpNode(BinaryOpTypes.Div); return (int)Tokens.Div; }
+
+"("			{ return (int)Tokens.OpenPar;}
+")"			{ return (int)Tokens.ClosePar;}
 ";"			{ return (int)Tokens.Semicolon; }
 "\n"		{ return (int)Tokens.Endl; }
 " "         { }
@@ -48,11 +50,11 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 "{"			{ return (int)Tokens.OpenBracket;}
 "}"			{ return (int)Tokens.CloseBracket;}
 
-{DoubleVal}	{ yylval.node = new DoubleNode(double.Parse(yytext)); return (int)Tokens.DoubleVal; }
-{IntVal}	{ yylval.node = new IntNode(int.Parse(yytext)); return (int)Tokens.IntVal; }
-{BoolVal}	{ yylval.node = new BoolNode(bool.Parse(yytext)); return (int)Tokens.BoolVal; }
-{String}	{ yylval.node = new StringNode(yytext); return (int)Tokens.String; }
-{Ident}		{ yylval.node = new VariableNode(yytext); return (int)Tokens.Variable; }
+{DoubleVal}	{ yylval = new DoubleNode(double.Parse(yytext)); return (int)Tokens.DoubleVal; }
+{IntVal}	{ yylval = new IntNode(int.Parse(yytext)); return (int)Tokens.IntVal; }
+{BoolVal}	{ yylval = new BoolNode(bool.Parse(yytext)); return (int)Tokens.BoolVal; }
+{String}	{ yylval = new StringNode(yytext); return (int)Tokens.String; }
+{Ident}		{ yylval = new VariableNode(yytext); return (int)Tokens.Variable; }
 
 <<EOF>>		{ return (int)Tokens.Eof; }
 

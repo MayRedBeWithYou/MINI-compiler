@@ -2,10 +2,7 @@
 %using MINICompiler;
 %namespace GardensPoint
 
-%union
-{
-public Node node;
-}
+%YYSTYPE Node
 
 %right Assign
 %left And Or
@@ -15,55 +12,138 @@ public Node node;
 %left BitOr BitAnd
 %right Minus Tilde Not IntCast DoubleCast
 
-
 %token Program Write Read If Else While Return
 %token Endl OpenPar ClosePar OpenBracket CloseBracket Semicolon
 %token Eof Error
 %token Int Double Bool
-%token <node> Variable IntVal DoubleVal BoolVal String
+%token Variable IntVal DoubleVal BoolVal String
 
 %%
-start			: Program Endl 
+start			: Program space 
 					{
 						inc();
-						Console.WriteLine("Program found.");
 						root = new ProgramNode();
 						current = root;
+						root.line = line;
+						list.Add(root);						
 					}
 					block
 					Eof {Console.WriteLine("End of file. Lines: " + line);}
 				;
-block			: OpenBracket Endl { inc(); Console.WriteLine("Opening block.");}
-				  lines
-				  CloseBracket { inc(); Console.WriteLine("Closing block.");}
+space			:
+				| Endl {inc();} space
 				;
-lines			: {Console.WriteLine("No more lines");}
-				| line Endl {inc(); } lines
+block			: OpenBracket space 
+					{
+						Console.WriteLine("Opening block."); 
+						BlockNode node = new BlockNode(); 
+						node.line = line; 
+						list.Add();
+					}
+				  lines
+				  CloseBracket space 
+					{
+						Console.WriteLine("Closing block.");
+					}
+				;
+lines			: { Console.WriteLine("No more lines"); }
 				| line lines
-				| Endl {inc(); } lines
+				| space lines
 				;
 line			: init Semicolon
 				| assign Semicolon
 				| write Semicolon
+				| exp Semicolon
 				;
-write			: Write String {Console.WriteLine("Found write of string.");}
-				| Write exp {Console.WriteLine("Found write of expression.");}
+write			: Write String 
+					{
+						WriteNode node = new WriteNode(line);
+						node.content = $2;
+						list.Add(node);
+					}
+				| Write exp 
+					{
+						WriteNode node = new WriteNode(line);
+						list.Add(node);
+					}
 				;
-init			: Int Variable {Console.WriteLine("Found int init.");}
-				| Double Variable {Console.WriteLine("Found double init.");}
-				| Bool Variable {Console.WriteLine("Found bool init.");}
+init			: Int Variable 
+					{
+						InitNode node = new InitNode();
+						node.variable = (VariableNode)$2;
+						node.variable.type = "int";
+						list.Add(node);
+					}
+				| Double Variable 
+					{
+						Console.WriteLine("Found double init.");
+						InitNode node = new InitNode();
+						node.variable = (VariableNode)$2;
+						node.variable.type = "double";
+						list.Add(node);
+					}
+				| Bool Variable 
+					{
+						Console.WriteLine("Found bool init.");
+						InitNode node = new InitNode();
+						node.variable = (VariableNode)$2;
+						node.variable.type = "bool";
+						 list.Add(node);
+					}
 				;
-assign			: Variable Assign exp {Console.WriteLine("Found assignment.");} 
+assign			: Variable Assign exp 
+					{
+						Console.WriteLine("Found assignment.");
+						AssignNode node = new AssignNode();
+						node.left = (VariableNode)$1;
+						node.right = $3;
+						node.line = line;
+						list.Add(node);
+						$$ = node;
+					} 
 				;
-exp				: exp Add exp
+exp				: OpenPar exp ClosePar 
+					{
+						ParenthesisNode node = new ParenthesisNode();
+						node.content = $2;
+						list.Add(node);
+						$$ = node;
+					} 
+				| exp Add exp
+					{
+						BinaryOpNode node = $2 as BinaryOpNode;
+						$$ = AssignToBinaryOp(node, $1 as Node, $3 as Node); 
+					}
 				| exp Sub exp
-				| exp Mult exp
-				| exp Div exp
-				| exp Comparison exp
-				| Variable {Console.WriteLine("Found variable.");}
-				| IntVal {Console.WriteLine("Found int value.");}
-				| DoubleVal {Console.WriteLine("Found double value.");}
-				| BoolVal {Console.WriteLine("Found bool value.");}
+					{
+						BinaryOpNode node = $2 as BinaryOpNode;
+						$$ = AssignToBinaryOp(node, $1 as Node, $3 as Node); 
+					}
+				| exp Mult exp 
+					{
+						BinaryOpNode node = $2 as BinaryOpNode;
+						$$ = AssignToBinaryOp(node, $1 as Node, $3 as Node); 
+					}
+				| exp Div exp 
+					{
+						BinaryOpNode node = $2 as BinaryOpNode;
+						$$ = AssignToBinaryOp(node, $1 as Node, $3 as Node); 
+					}
+				| exp Comparison exp 
+					{
+						ComparisonNode node = $2 as ComparisonNode;
+						$$ = AssignToComparisonOp(node, $1 as Node, $3 as Node); 
+					}
+				| IntCast exp
+				| Variable
+				| IntVal
+				| DoubleVal
+				| BoolVal
+				;
+cast			: IntCast Variable
+				| IntCast parExp
+				| DoubleCast Variable
+				| DoubleCast parExp
 				;
 				
 %%
@@ -72,8 +152,28 @@ public int line=0;
 
 public ProgramNode root;
 
+public List<Node> list = new List<Node>();
+
 public Node current;
 
 public Parser(Scanner scanner) : base(scanner) { }
 
 public void inc() { line++;}
+
+public BinaryOpNode AssignToBinaryOp(BinaryOpNode node, Node left, Node right)
+{
+	node.line = line;
+	node.left = left;
+	node.right = right;
+	list.Add(node);
+	return node;
+}
+
+public ComparisonNode AssignToComparisonOp(ComparisonNode node, Node left, Node right)
+{
+	node.line = line;
+	node.left = left;
+	node.right = right;
+	list.Add(node);
+	return node;
+}

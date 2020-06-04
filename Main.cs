@@ -26,6 +26,13 @@ namespace MINICompiler
         public abstract string getType();
 
         public abstract string GenerateCode();
+
+        public Node parent;
+
+        protected Node(int line = -1)
+        {
+            this.line = line;
+        }
     }
 
     public class ProgramNode : Node
@@ -61,6 +68,10 @@ namespace MINICompiler
     public class WriteNode : Node
     {
         public Node content;
+
+        public WriteNode(int line = -1) : base(line)
+        {
+        }
 
         public override string GenerateCode()
         {
@@ -124,6 +135,21 @@ namespace MINICompiler
         {
             this.name = name;
         }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string getType()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class InitNode : Node
+    {
+        public VariableNode variable;
 
         public override string GenerateCode()
         {
@@ -213,10 +239,17 @@ namespace MINICompiler
         }
     }
 
-    public class ExpressionNode : Node
+    public class ComparisonNode : Node
     {
-        public ExpressionNode()
+        public Node left;
+
+        public Node right;
+
+        public ComparisonType type;
+
+        public ComparisonNode(ComparisonType type)
         {
+            this.type = type;
         }
 
         public override string GenerateCode()
@@ -230,17 +263,33 @@ namespace MINICompiler
         }
     }
 
-    public class ComparisonNode : Node
+    public class BinaryOpNode : Node
     {
-        public ExpressionNode left;
+        public Node left;
 
-        public ExpressionNode right;
+        public Node right;
 
-        public ComparisonType type;
+        public BinaryOpTypes type;
 
-        public ComparisonNode()
+        public BinaryOpNode(BinaryOpTypes type)
         {
+            this.type = type;
         }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string getType()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ParenthesisNode : Node
+    {
+        public Node content;
 
         public override string GenerateCode()
         {
@@ -261,5 +310,13 @@ namespace MINICompiler
         GreaterOrEqual,
         Less,
         LessOrEqual
+    }
+
+    public enum BinaryOpTypes
+    {
+        Add,
+        Sub,
+        Mult,
+        Div
     }
 }
