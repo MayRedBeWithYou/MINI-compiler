@@ -19,9 +19,8 @@
 %token Variable IntVal DoubleVal BoolVal String
 
 %%
-start			: Program space 
+start			: Program spaces 
 					{
-						inc();
 						root = new ProgramNode();
 						current = root;
 						root.line = line;
@@ -30,25 +29,25 @@ start			: Program space
 					block
 					Eof {Console.WriteLine("End of file. Lines: " + line);}
 				;
-space			:
-				| Endl {inc();} space
+spaces			:
+				| Endl {inc(); } spaces
 				;
-block			: OpenBracket space 
+block			: OpenBracket spaces 
 					{
 						Console.WriteLine("Opening block."); 
 						BlockNode node = new BlockNode(); 
 						node.line = line; 
-						list.Add();
+						list.Add(node);
 					}
 				  lines
-				  CloseBracket space 
+				  CloseBracket spaces 
 					{
 						Console.WriteLine("Closing block.");
 					}
 				;
 lines			: { Console.WriteLine("No more lines"); }
 				| line lines
-				| space lines
+				| Endl {inc();} lines
 				;
 line			: init Semicolon
 				| assign Semicolon
@@ -134,21 +133,20 @@ exp				: OpenPar exp ClosePar
 						ComparisonNode node = $2 as ComparisonNode;
 						$$ = AssignToComparisonOp(node, $1 as Node, $3 as Node); 
 					}
-				| IntCast exp
 				| Variable
 				| IntVal
 				| DoubleVal
 				| BoolVal
 				;
 cast			: IntCast Variable
-				| IntCast parExp
+				| IntCast exp
 				| DoubleCast Variable
-				| DoubleCast parExp
+				| DoubleCast exp
 				;
 				
 %%
 
-public int line=0;
+public int line=1;
 
 public ProgramNode root;
 
