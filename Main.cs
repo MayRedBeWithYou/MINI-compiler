@@ -14,6 +14,7 @@ namespace MINICompiler
             Scanner scanner = new Scanner(source);
             Parser parser = new Parser(scanner);
             parser.Parse();
+            Console.ReadKey();
             return 0;
         }
     }
@@ -29,7 +30,7 @@ namespace MINICompiler
 
     public class ProgramNode : Node
     {
-        public BracketNode child;
+        public BlockNode child;
 
         public override string GenerateCode()
         {
@@ -42,24 +43,9 @@ namespace MINICompiler
         }
     }
 
-    public class BracketNode : Node
+    public class BlockNode : Node
     {
-        public Node content;
-
-        public override string GenerateCode()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string getType()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class ParenthesisNode : Node
-    {
-        public Node content;
+        public List<Node> lines;
 
         public override string GenerateCode()
         {
@@ -109,7 +95,7 @@ namespace MINICompiler
 
     public class ReadNode : Node
     {
-        public IdentNode assignTo;
+        public VariableNode assignTo;
         public override string GenerateCode()
         {
             string result = $"call string [mscorlib]System.Console::ReadLine()\n";
@@ -128,11 +114,16 @@ namespace MINICompiler
         }
     }
 
-    public class IdentNode : Node
+    public class VariableNode : Node
     {
         public string name;
 
         public string type;
+
+        public VariableNode(string name)
+        {
+            this.name = name;
+        }
 
         public override string GenerateCode()
         {
@@ -147,7 +138,7 @@ namespace MINICompiler
 
     public class AssignNode : Node
     {
-        public Node left;
+        public VariableNode left;
 
         public Node right;
 
@@ -220,5 +211,55 @@ namespace MINICompiler
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class ExpressionNode : Node
+    {
+        public ExpressionNode()
+        {
+        }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string getType()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ComparisonNode : Node
+    {
+        public ExpressionNode left;
+
+        public ExpressionNode right;
+
+        public ComparisonType type;
+
+        public ComparisonNode()
+        {
+        }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string getType()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public enum ComparisonType
+    {
+        Equal,
+        NotEqual,
+        Greater,
+        GreaterOrEqual,
+        Less,
+        LessOrEqual
     }
 }

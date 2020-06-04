@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  REDPC
-// DateTime: 27/05/2020 20:07:29
+// DateTime: 04/06/2020 15:20:13
 // UserName: MayRe
-// Input file <D:\MINICompiler\kompilator.y - 27/05/2020 20:07:27>
+// Input file <D:\MINICompiler\kompilator.y - 04/06/2020 15:04:56>
 
 // options: lines gplex
 
@@ -20,9 +20,13 @@ using MINICompiler;
 
 namespace GardensPoint
 {
-public enum Tokens {error=2,EOF=3,Program=4,Write=5,Assign=6,
-    OpenBracket=7,CloseBracket=8,Semicolon=9,Endl=10,Eof=11,Error=12,
-    Ident=13,Int=14,Double=15,Bool=16,String=17};
+public enum Tokens {error=2,EOF=3,Assign=4,And=5,Or=6,
+    Comparison=7,Add=8,Sub=9,Mult=10,Div=11,BitOr=12,
+    BitAnd=13,Minus=14,Tilde=15,Not=16,IntCast=17,DoubleCast=18,
+    Program=19,Write=20,Read=21,If=22,Else=23,While=24,
+    Return=25,Endl=26,OpenPar=27,ClosePar=28,OpenBracket=29,CloseBracket=30,
+    Semicolon=31,Eof=32,Error=33,Int=34,Double=35,Bool=36,
+    Variable=37,IntVal=38,DoubleVal=39,BoolVal=40,String=41};
 
 public struct ValueType
 #line 6 "D:\MINICompiler\kompilator.y"
@@ -55,49 +59,98 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
 #pragma warning disable 649
   private static Dictionary<int, string> aliases;
 #pragma warning restore 649
-  private static Rule[] rules = new Rule[12];
-  private static State[] states = new State[22];
+  private static Rule[] rules = new Rule[30];
+  private static State[] states = new State[53];
   private static string[] nonTerms = new string[] {
-      "start", "$accept", "Anon@1", "Anon@2", "lines", "Anon@3", "Anon@4", "line", 
-      "Anon@5", };
+      "start", "$accept", "Anon@1", "block", "Anon@2", "lines", "line", "Anon@3", 
+      "Anon@4", "init", "assign", "write", "exp", };
 
   static Parser() {
-    states[0] = new State(new int[]{4,3},new int[]{-1,1});
+    states[0] = new State(new int[]{19,3},new int[]{-1,1});
     states[1] = new State(new int[]{3,2});
     states[2] = new State(-1);
-    states[3] = new State(new int[]{10,4});
+    states[3] = new State(new int[]{26,4});
     states[4] = new State(-2,new int[]{-3,5});
-    states[5] = new State(new int[]{7,6});
-    states[6] = new State(new int[]{10,7});
-    states[7] = new State(-3,new int[]{-4,8});
-    states[8] = new State(new int[]{8,-6,10,-7,5,-7},new int[]{-5,9,-7,13});
-    states[9] = new State(new int[]{8,10});
-    states[10] = new State(-4,new int[]{-6,11});
-    states[11] = new State(new int[]{11,12});
+    states[5] = new State(new int[]{29,8},new int[]{-4,6});
+    states[6] = new State(new int[]{32,7});
+    states[7] = new State(-3);
+    states[8] = new State(new int[]{26,9});
+    states[9] = new State(-4,new int[]{-5,10});
+    states[10] = new State(new int[]{34,19,35,21,36,23,37,27,20,46,26,49,30,-6},new int[]{-6,11,-7,13,-10,17,-11,25,-12,44});
+    states[11] = new State(new int[]{30,12});
     states[12] = new State(-5);
-    states[13] = new State(new int[]{10,21,5,-9},new int[]{-8,14,-9,16});
-    states[14] = new State(new int[]{8,-6,10,-7,5,-7},new int[]{-5,15,-7,13});
-    states[15] = new State(-8);
-    states[16] = new State(new int[]{5,17});
-    states[17] = new State(new int[]{17,18});
-    states[18] = new State(new int[]{9,19});
-    states[19] = new State(new int[]{10,20});
-    states[20] = new State(-10);
-    states[21] = new State(-11);
+    states[13] = new State(new int[]{26,14,34,19,35,21,36,23,37,27,20,46,30,-6},new int[]{-6,52,-7,13,-10,17,-11,25,-12,44});
+    states[14] = new State(-7,new int[]{-8,15,-9,50});
+    states[15] = new State(new int[]{34,19,35,21,36,23,37,27,20,46,26,49,30,-6},new int[]{-6,16,-7,13,-10,17,-11,25,-12,44});
+    states[16] = new State(-8);
+    states[17] = new State(new int[]{31,18});
+    states[18] = new State(-12);
+    states[19] = new State(new int[]{37,20});
+    states[20] = new State(-17);
+    states[21] = new State(new int[]{37,22});
+    states[22] = new State(-18);
+    states[23] = new State(new int[]{37,24});
+    states[24] = new State(-19);
+    states[25] = new State(new int[]{31,26});
+    states[26] = new State(-13);
+    states[27] = new State(new int[]{4,28});
+    states[28] = new State(new int[]{37,40,38,41,39,42,40,43},new int[]{-13,29});
+    states[29] = new State(new int[]{8,30,9,32,10,34,11,36,7,38,31,-20});
+    states[30] = new State(new int[]{37,40,38,41,39,42,40,43},new int[]{-13,31});
+    states[31] = new State(new int[]{8,-21,9,-21,10,34,11,36,7,-21,31,-21});
+    states[32] = new State(new int[]{37,40,38,41,39,42,40,43},new int[]{-13,33});
+    states[33] = new State(new int[]{8,-22,9,-22,10,34,11,36,7,-22,31,-22});
+    states[34] = new State(new int[]{37,40,38,41,39,42,40,43},new int[]{-13,35});
+    states[35] = new State(-23);
+    states[36] = new State(new int[]{37,40,38,41,39,42,40,43},new int[]{-13,37});
+    states[37] = new State(-24);
+    states[38] = new State(new int[]{37,40,38,41,39,42,40,43},new int[]{-13,39});
+    states[39] = new State(new int[]{8,30,9,32,10,34,11,36,7,-25,31,-25});
+    states[40] = new State(-26);
+    states[41] = new State(-27);
+    states[42] = new State(-28);
+    states[43] = new State(-29);
+    states[44] = new State(new int[]{31,45});
+    states[45] = new State(-14);
+    states[46] = new State(new int[]{41,47,37,40,38,41,39,42,40,43},new int[]{-13,48});
+    states[47] = new State(-15);
+    states[48] = new State(new int[]{8,30,9,32,10,34,11,36,7,38,31,-16});
+    states[49] = new State(-10,new int[]{-9,50});
+    states[50] = new State(new int[]{34,19,35,21,36,23,37,27,20,46,26,49,30,-6},new int[]{-6,51,-7,13,-10,17,-11,25,-12,44});
+    states[51] = new State(-11);
+    states[52] = new State(-9);
 
     for (int sNo = 0; sNo < states.Length; sNo++) states[sNo].number = sNo;
 
     rules[1] = new Rule(-2, new int[]{-1,3});
     rules[2] = new Rule(-3, new int[]{});
-    rules[3] = new Rule(-4, new int[]{});
-    rules[4] = new Rule(-6, new int[]{});
-    rules[5] = new Rule(-1, new int[]{4,10,-3,7,10,-4,-5,8,-6,11});
-    rules[6] = new Rule(-5, new int[]{});
-    rules[7] = new Rule(-7, new int[]{});
-    rules[8] = new Rule(-5, new int[]{-7,-8,-5});
-    rules[9] = new Rule(-9, new int[]{});
-    rules[10] = new Rule(-8, new int[]{-9,5,17,9,10});
-    rules[11] = new Rule(-8, new int[]{10});
+    rules[3] = new Rule(-1, new int[]{19,26,-3,-4,32});
+    rules[4] = new Rule(-5, new int[]{});
+    rules[5] = new Rule(-4, new int[]{29,26,-5,-6,30});
+    rules[6] = new Rule(-6, new int[]{});
+    rules[7] = new Rule(-8, new int[]{});
+    rules[8] = new Rule(-6, new int[]{-7,26,-8,-6});
+    rules[9] = new Rule(-6, new int[]{-7,-6});
+    rules[10] = new Rule(-9, new int[]{});
+    rules[11] = new Rule(-6, new int[]{26,-9,-6});
+    rules[12] = new Rule(-7, new int[]{-10,31});
+    rules[13] = new Rule(-7, new int[]{-11,31});
+    rules[14] = new Rule(-7, new int[]{-12,31});
+    rules[15] = new Rule(-12, new int[]{20,41});
+    rules[16] = new Rule(-12, new int[]{20,-13});
+    rules[17] = new Rule(-10, new int[]{34,37});
+    rules[18] = new Rule(-10, new int[]{35,37});
+    rules[19] = new Rule(-10, new int[]{36,37});
+    rules[20] = new Rule(-11, new int[]{37,4,-13});
+    rules[21] = new Rule(-13, new int[]{-13,8,-13});
+    rules[22] = new Rule(-13, new int[]{-13,9,-13});
+    rules[23] = new Rule(-13, new int[]{-13,10,-13});
+    rules[24] = new Rule(-13, new int[]{-13,11,-13});
+    rules[25] = new Rule(-13, new int[]{-13,7,-13});
+    rules[26] = new Rule(-13, new int[]{37});
+    rules[27] = new Rule(-13, new int[]{38});
+    rules[28] = new Rule(-13, new int[]{39});
+    rules[29] = new Rule(-13, new int[]{40});
   }
 
   protected override void Initialize() {
@@ -113,39 +166,93 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
     switch (action)
     {
       case 2: // Anon@1 -> /* empty */
-#line 14 "D:\MINICompiler\kompilator.y"
-                       {inc(); Console.WriteLine("Program found");}
+#line 27 "D:\MINICompiler\kompilator.y"
+     {
+						inc();
+						Console.WriteLine("Program found.");
+						root = new ProgramNode();
+						current = root;
+					}
 #line default
         break;
-      case 3: // Anon@2 -> /* empty */
-#line 15 "D:\MINICompiler\kompilator.y"
-                       { inc(); Console.WriteLine("Opening bracket");}
+      case 3: // start -> Program, Endl, Anon@1, block, Eof
+#line 34 "D:\MINICompiler\kompilator.y"
+         {Console.WriteLine("End of file. Lines: " + line);}
 #line default
         break;
-      case 4: // Anon@3 -> /* empty */
-#line 17 "D:\MINICompiler\kompilator.y"
-                   { inc(); Console.WriteLine("Closing bracket");}
+      case 4: // Anon@2 -> /* empty */
+#line 36 "D:\MINICompiler\kompilator.y"
+                           { inc(); Console.WriteLine("Opening block.");}
 #line default
         break;
-      case 5: // start -> Program, Endl, Anon@1, OpenBracket, Endl, Anon@2, lines, CloseBracket, 
-              //          Anon@3, Eof
-#line 17 "D:\MINICompiler\kompilator.y"
-                                                                       {Console.WriteLine("End of file. Lines: " + line);}
+      case 5: // block -> OpenBracket, Endl, Anon@2, lines, CloseBracket
+#line 38 "D:\MINICompiler\kompilator.y"
+                   { inc(); Console.WriteLine("Closing block.");}
 #line default
         break;
       case 6: // lines -> /* empty */
-#line 19 "D:\MINICompiler\kompilator.y"
+#line 40 "D:\MINICompiler\kompilator.y"
           {Console.WriteLine("No more lines");}
 #line default
         break;
-      case 7: // Anon@4 -> /* empty */
-#line 20 "D:\MINICompiler\kompilator.y"
-      {inc(); Console.WriteLine("Found line.");}
+      case 7: // Anon@3 -> /* empty */
+#line 41 "D:\MINICompiler\kompilator.y"
+                {inc(); }
 #line default
         break;
-      case 9: // Anon@5 -> /* empty */
-#line 22 "D:\MINICompiler\kompilator.y"
-         {Console.WriteLine("Found write.");}
+      case 10: // Anon@4 -> /* empty */
+#line 43 "D:\MINICompiler\kompilator.y"
+           {inc(); }
+#line default
+        break;
+      case 15: // write -> Write, String
+#line 49 "D:\MINICompiler\kompilator.y"
+                       {Console.WriteLine("Found write of string.");}
+#line default
+        break;
+      case 16: // write -> Write, exp
+#line 50 "D:\MINICompiler\kompilator.y"
+                {Console.WriteLine("Found write of expression.");}
+#line default
+        break;
+      case 17: // init -> Int, Variable
+#line 52 "D:\MINICompiler\kompilator.y"
+                      {Console.WriteLine("Found int init.");}
+#line default
+        break;
+      case 18: // init -> Double, Variable
+#line 53 "D:\MINICompiler\kompilator.y"
+                      {Console.WriteLine("Found double init.");}
+#line default
+        break;
+      case 19: // init -> Bool, Variable
+#line 54 "D:\MINICompiler\kompilator.y"
+                    {Console.WriteLine("Found bool init.");}
+#line default
+        break;
+      case 20: // assign -> Variable, Assign, exp
+#line 56 "D:\MINICompiler\kompilator.y"
+                               {Console.WriteLine("Found assignment.");}
+#line default
+        break;
+      case 26: // exp -> Variable
+#line 63 "D:\MINICompiler\kompilator.y"
+               {Console.WriteLine("Found variable.");}
+#line default
+        break;
+      case 27: // exp -> IntVal
+#line 64 "D:\MINICompiler\kompilator.y"
+             {Console.WriteLine("Found int value.");}
+#line default
+        break;
+      case 28: // exp -> DoubleVal
+#line 65 "D:\MINICompiler\kompilator.y"
+                {Console.WriteLine("Found double value.");}
+#line default
+        break;
+      case 29: // exp -> BoolVal
+#line 66 "D:\MINICompiler\kompilator.y"
+              {Console.WriteLine("Found bool value.");}
 #line default
         break;
     }
@@ -162,7 +269,7 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
         return CharToString((char)terminal);
   }
 
-#line 28 "D:\MINICompiler\kompilator.y"
+#line 70 "D:\MINICompiler\kompilator.y"
 
 public int line=0;
 
