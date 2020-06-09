@@ -18,10 +18,10 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 "double"	{ return (int)Tokens.Double; }
 "bool"		{ return (int)Tokens.Bool; }
 
-"&"			{ return (int)Tokens.BitAnd; }
-"&&"		{ return (int)Tokens.And; }
-"|"			{ return (int)Tokens.BitOr; }
-"||"		{ return (int)Tokens.Or; }
+"&"			{ yylval = new BinaryOpNode(BinaryOpType.BitAnd); return (int)Tokens.BitAnd; }
+"&&"		{ yylval = new LogicOpNode(LogicOpType.And); return (int)Tokens.And; }
+"|"			{ yylval = new BinaryOpNode(BinaryOpType.BitOr); return (int)Tokens.BitOr; }
+"||"		{ yylval = new LogicOpNode(LogicOpType.Or); return (int)Tokens.Or; }
 
 "=="		{ yylval = new ComparisonNode(ComparisonType.Equal); return (int)Tokens.Comparison; }
 "!="		{ yylval = new ComparisonNode(ComparisonType.NotEqual); return (int)Tokens.Comparison; }
@@ -36,27 +36,28 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 
 "="			{ return (int)Tokens.Assign; }
 
-"+"			{ yylval = new BinaryOpNode(BinaryOpTypes.Add); return (int)Tokens.Add; }
-"-"			{ yylval = new BinaryOpNode(BinaryOpTypes.Sub); return (int)Tokens.Sub; }
-"*"			{ yylval = new BinaryOpNode(BinaryOpTypes.Mult); return (int)Tokens.Mult; }
-"/"			{ yylval = new BinaryOpNode(BinaryOpTypes.Div); return (int)Tokens.Div; }
+"+"			{ yylval = new BinaryOpNode(BinaryOpType.Add); return (int)Tokens.Add; }
+"-"			{ yylval = new BinaryOpNode(BinaryOpType.Sub); return (int)Tokens.Sub; }
+"*"			{ yylval = new BinaryOpNode(BinaryOpType.Mult); return (int)Tokens.Mult; }
+"/"			{ yylval = new BinaryOpNode(BinaryOpType.Div); return (int)Tokens.Div; }
 
 "("			{ return (int)Tokens.OpenPar;}
 ")"			{ return (int)Tokens.ClosePar;}
 ";"			{ return (int)Tokens.Semicolon; }
-"\n"		{ return (int)Tokens.Endl; }
+"\n"		{ Compiler.ProgramTree.lineCount++; }
 " "         { }
 "\t"        { }
 "{"			{ return (int)Tokens.OpenBracket;}
 "}"			{ return (int)Tokens.CloseBracket;}
 "if"		{ return (int)Tokens.If;}
 "else"		{ return (int)Tokens.Else;}
+"while"		{ return (int)Tokens.While;}
 
-{DoubleVal}	{ yylval = new DoubleNode(double.Parse(yytext)); return (int)Tokens.DoubleVal; }
-{IntVal}	{ yylval = new IntNode(int.Parse(yytext)); return (int)Tokens.IntVal; }
-{BoolVal}	{ yylval = new BoolNode(bool.Parse(yytext)); return (int)Tokens.BoolVal; }
-{String}	{ yylval = new StringNode(yytext); return (int)Tokens.String; }
-{Ident}		{ yylval = new VariableNode(yytext); return (int)Tokens.Variable; }
+{DoubleVal}	{ yylval = new DoubleNode(double.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.DoubleVal; }
+{IntVal}	{ yylval = new IntNode(int.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.IntVal; }
+{BoolVal}	{ yylval = new BoolNode(bool.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.BoolVal; }
+{String}	{ yylval = new StringNode(yytext, Compiler.ProgramTree.lineCount); return (int)Tokens.String; }
+{Ident}		{ yylval = new VariableNode(yytext, Compiler.ProgramTree.lineCount); return (int)Tokens.Variable; }
 
 <<EOF>>		{ return (int)Tokens.Eof; }
 
