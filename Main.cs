@@ -302,6 +302,25 @@ namespace MINICompiler
         }
     }
 
+    public class IfNode : Node
+    {
+        ComparisonNode check;
+
+        BlockNode code;
+
+        BlockNode elseCode;
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string getType()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public enum ComparisonType
     {
         Equal,

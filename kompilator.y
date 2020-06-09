@@ -122,11 +122,7 @@ exp				: parExp
 						BinaryOpNode node = $2 as BinaryOpNode;
 						$$ = AssignToBinaryOp(node, $1 as Node, $3 as Node); 
 					}
-				| exp Comparison exp 
-					{
-						ComparisonNode node = $2 as ComparisonNode;
-						$$ = AssignToComparisonOp(node, $1 as Node, $3 as Node); 
-					}
+				| comp
 				| Variable
 				| IntVal
 				| DoubleVal
@@ -137,6 +133,17 @@ cast			: IntCast Variable
 				| IntCast parExp 
 				| DoubleCast Variable
 				| DoubleCast parExp
+				;
+
+comp			: exp Comparison exp 
+					{
+						ComparisonNode node = $2 as ComparisonNode;
+						$$ = AssignToComparisonOp(node, $1 as Node, $3 as Node); 
+					}
+				;
+
+if				: If OpenPar comp ClosePar block
+				| If OpenPar comp ClosePar block Else block
 				;
 				
 %%

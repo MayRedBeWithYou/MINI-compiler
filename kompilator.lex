@@ -49,6 +49,8 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 "\t"        { }
 "{"			{ return (int)Tokens.OpenBracket;}
 "}"			{ return (int)Tokens.CloseBracket;}
+"if"		{ return (int)Tokens.If;}
+"else"		{ return (int)Tokens.Else;}
 
 {DoubleVal}	{ yylval = new DoubleNode(double.Parse(yytext)); return (int)Tokens.DoubleVal; }
 {IntVal}	{ yylval = new IntNode(int.Parse(yytext)); return (int)Tokens.IntVal; }
