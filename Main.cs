@@ -8,6 +8,8 @@ namespace MINICompiler
 {
     public class Compiler
     {
+        public static ProgramNode ProgramTree = new ProgramNode();
+
         public static int Main()
         {
             FileStream source = new FileStream("test.txt", FileMode.Open);
@@ -27,8 +29,6 @@ namespace MINICompiler
 
         public abstract string GenerateCode();
 
-        public Node parent;
-
         protected Node(int line = -1)
         {
             this.line = line;
@@ -37,7 +37,7 @@ namespace MINICompiler
 
     public class ProgramNode : Node
     {
-        public BlockNode child;
+        public BlockNode block;
 
         public override string GenerateCode()
         {
@@ -52,7 +52,7 @@ namespace MINICompiler
 
     public class BlockNode : Node
     {
-        public List<Node> lines;
+        public List<Node> lines = new List<Node>();
 
         public override string GenerateCode()
         {
@@ -61,7 +61,7 @@ namespace MINICompiler
 
         public override string getType()
         {
-            throw new NotImplementedException();
+            return "BlockNode";
         }
     }
 

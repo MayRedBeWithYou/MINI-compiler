@@ -19,95 +19,89 @@
 %token Variable IntVal DoubleVal BoolVal String
 
 %%
-start			: Program spaces 
-					{
-						root = new ProgramNode();
-						current = root;
-						root.line = line;
-						list.Add(root);						
-					}
-					block
-					Eof {Console.WriteLine("End of file. Lines: " + line);}
+start			: Program spaces block Eof
+				{					
+					Compiler.ProgramTree.block = blockStack.Pop();
+				}
 				;
 spaces			:
-				| Endl {inc(); } spaces
+				| Endl {inc(); }
 				;
-block			: OpenBracket spaces 
+block			: OpenBracket		
 					{
-						Console.WriteLine("Opening block."); 
-						BlockNode node = new BlockNode(); 
-						node.line = line; 
-						list.Add(node);
+						BlockNode node = new BlockNode();
+						blockStack.Push(node);
+						node.line = line;
+						$$ = node;
 					}
 				  lines
-				  CloseBracket spaces 
-					{
-						Console.WriteLine("Closing block.");
-					}
+				  CloseBracket
 				;
-lines			: { Console.WriteLine("No more lines"); }
-				| line lines
+lines			: 
+				| instruction { $$ = $1; blockStack.Peek().lines.Add($1); } lines
 				| Endl {inc();} lines
 				;
-line			: init Semicolon
+instruction		: init Semicolon
 				| assign Semicolon
 				| write Semicolon
+				| read Semicolon
 				| exp Semicolon
 				;
 write			: Write String 
 					{
 						WriteNode node = new WriteNode(line);
 						node.content = $2;
-						list.Add(node);
+						$$ = node;
 					}
 				| Write exp 
 					{
 						WriteNode node = new WriteNode(line);
-						list.Add(node);
+						node.content = $2;
+						$$ = node;
 					}
+				;
+read			: Read Variable
 				;
 init			: Int Variable 
 					{
 						InitNode node = new InitNode();
 						node.variable = (VariableNode)$2;
 						node.variable.type = "int";
-						list.Add(node);
+						$$ = node;
 					}
 				| Double Variable 
 					{
-						Console.WriteLine("Found double init.");
 						InitNode node = new InitNode();
 						node.variable = (VariableNode)$2;
 						node.variable.type = "double";
-						list.Add(node);
+						$$ = node;
 					}
 				| Bool Variable 
 					{
-						Console.WriteLine("Found bool init.");
 						InitNode node = new InitNode();
 						node.variable = (VariableNode)$2;
 						node.variable.type = "bool";
-						 list.Add(node);
+						$$ = node;
 					}
 				;
 assign			: Variable Assign exp 
 					{
-						Console.WriteLine("Found assignment.");
 						AssignNode node = new AssignNode();
 						node.left = (VariableNode)$1;
 						node.right = $3;
 						node.line = line;
-						list.Add(node);
 						$$ = node;
 					} 
 				;
-exp				: OpenPar exp ClosePar 
+parExp			: OpenPar exp ClosePar 
 					{
 						ParenthesisNode node = new ParenthesisNode();
 						node.content = $2;
-						list.Add(node);
 						$$ = node;
 					} 
+				;
+
+exp				: parExp
 				| exp Add exp
 					{
 						BinaryOpNode node = $2 as BinaryOpNode;
@@ -137,11 +131,12 @@ exp				: OpenPar exp ClosePar
 				| IntVal
 				| DoubleVal
 				| BoolVal
+				| cast
 				;
 cast			: IntCast Variable
-				| IntCast exp
+				| IntCast parExp 
 				| DoubleCast Variable
-				| DoubleCast exp
+				| DoubleCast parExp
 				;
 				
 %%
@@ -150,7 +145,7 @@ public int line=1;
 
 public ProgramNode root;
 
-public List<Node> list = new List<Node>();
+public Stack<BlockNode> blockStack = new Stack<BlockNode>();
 
 public Node current;
 
@@ -163,7 +158,6 @@ public BinaryOpNode AssignToBinaryOp(BinaryOpNode node, Node left, Node right)
 	node.line = line;
 	node.left = left;
 	node.right = right;
-	list.Add(node);
 	return node;
 }
 
@@ -172,6 +166,5 @@ public ComparisonNode AssignToComparisonOp(ComparisonNode node, Node left, Node 
 	node.line = line;
 	node.left = left;
 	node.right = right;
-	list.Add(node);
 	return node;
 }
