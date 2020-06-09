@@ -1,0 +1,11 @@
+program
+{
+   int i;
+   i = 2;
+   bool b;
+   b = true;
+   i = b;
+   n = 1;
+   x+y;
+   ( a>=0 && a<10 ) || b>3 ; 
+}
