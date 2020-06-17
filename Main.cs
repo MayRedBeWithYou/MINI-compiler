@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using GardensPoint;
 using System.Linq.Expressions;
+using System.Text;
 
 namespace MINICompiler
 {
@@ -27,7 +28,10 @@ namespace MINICompiler
         Comparison,
         Parenthesis,
         IntCast,
-        DoubleCast
+        DoubleCast,
+        Not,
+        Minus,
+        Neg
     }
 
     public enum ComparisonType
@@ -58,17 +62,31 @@ namespace MINICompiler
 
     public enum ValType
     {
-        None,
-        Bool,
-        Int,
-        Double
+        None = -1,
+        Bool = 0,
+        Int = 1,
+        Double = 2
     }
 
     public enum ErrorCode
     {
-        UnexpectedError = -1,
-        UndeclaredVariable = -2,
-        IllegalCast = -3,
+        None = 0,
+        UnexpectedError = 1,
+        UndeclaredVariable = 2,
+        IllegalCast = 3,
+    }
+
+    public class SemanticException : Exception
+    {
+        public ErrorCode Error { private set; get; }
+
+        public int Line { private set; get; } = -1;
+
+        public SemanticException(ErrorCode code, int line)
+        {
+            Error = code;
+            Line = line;
+        }
     }
 
     public class Compiler
@@ -80,15 +98,63 @@ namespace MINICompiler
             if (args.Length == 0) return -1;
             FileStream source = new FileStream(args[0], FileMode.Open);
             Scanner scanner = new Scanner(source);
-            Parser parser = new Parser(scanner);
+            Parser parser = new Parser(scanner, ProgramTree);
             parser.Parse();
-            Console.ReadKey();
-            return 0;
+            ProgramTreeChecker checker = new ProgramTreeChecker(ProgramTree);
+            int result = checker.CheckSemantics();
+            Console.WriteLine("Parsing ended with code: " + result);
+            if(result == 0)
+            {
+                using (StreamWriter output = new StreamWriter(args[0] + ".il", false))
+                {
+                    output.Write(GenerateCode(ProgramTree, checker.locals));
+                }
+                Console.WriteLine("Created file: " + args[0] + ".il");
+            }
+            return result;
+        }
+
+        public static string GenerateCode(ProgramNode node, List<(string name, ValType type)> variables)
+        {
+            StringBuilder sb = new StringBuilder(".method private hidebysig static void  Main(string[] args) cil managed");
+            sb.AppendLine();
+            sb.AppendLine("{");
+            sb.AppendLine(".entrypoint");
+            sb.AppendLine(".locals init (");
+
+            for(int i = 0; i<variables.Count;i++)
+            {
+                sb.Append($"[{i}] ");
+                switch (variables[i].type)
+                {
+                    case ValType.Int:
+                        sb.Append("int32");
+                        break;
+                    case ValType.Double:
+                        sb.Append("float64");
+                        break;
+                    case ValType.Bool:
+                        sb.Append("bool");
+                        break;
+                }
+                sb.Append($" {variables[i].name},");
+                sb.AppendLine();
+            }
+            sb.Remove(sb.Length - 3, 1);
+            sb.AppendLine(")");
+
+            // Parse the tree again
+
+            sb.AppendLine("ret");
+            sb.AppendLine("}");
+            return sb.ToString();
         }
     }
 
     public class ProgramTreeChecker
     {
+        public List<(string name, ValType type)> locals = new List<(string name, ValType type)>();
+
         ProgramNode program;
 
         public ProgramTreeChecker(ProgramNode node)
@@ -99,12 +165,30 @@ namespace MINICompiler
         public int CheckSemantics()
         {
             Scope scope = new Scope();
-            return GoDeeperInScope(program.block, scope);
+            try
+            {
+                GoDeeperInScope(program.block, scope);
+            }
+            catch (SemanticException e)
+            {
+                Console.WriteLine("Found error: " + Enum.GetName(typeof(ErrorCode), e.Error) + " in line " + e.Line);
+                return (int)e.Error;
+            }
+            return 0;
         }
 
-        public int CheckInScope(Node node, Scope scope, Scope outer)
+        private void GoDeeperInScope(BlockNode node, Scope outer)
         {
-            switch (node.getType())
+            Scope scope = new Scope();
+            foreach (Node line in node.instructions)
+            {
+                CheckInScope(line, scope, outer);
+            }
+        }
+
+        public void CheckInScope(Node node, Scope scope, Scope outer)
+        {
+            switch (node.GetNodeType())
             {
                 case NodeType.Block:
                     Scope newOuter = new Scope(outer);
@@ -112,75 +196,196 @@ namespace MINICompiler
                     GoDeeperInScope(node as BlockNode, newOuter);
                     break;
                 case NodeType.If:
-                    IfNode n = node as IfNode;
-
+                    IfNode ifNode = node as IfNode;
+                    if (CheckValueType(ifNode.check, scope, outer) == ValType.Bool)
+                    {
+                        CheckInScope(ifNode.ifBlock, scope, outer);
+                        if (!(ifNode.elseBlock is null)) CheckInScope(ifNode.elseBlock, scope, outer);
+                    }
+                    else throw new SemanticException(ErrorCode.IllegalCast, node.line);
                     break;
                 case NodeType.While:
+                    WhileNode whileNode = node as WhileNode;
+                    if (CheckValueType(whileNode.check, scope, outer) == ValType.Bool)
+                    {
+                        CheckInScope(whileNode.block, scope, outer);
+                    }
+                    else throw new SemanticException(ErrorCode.IllegalCast, node.line);
                     break;
                 case NodeType.Read:
                     ReadNode readNode = node as ReadNode;
-                    return CheckInScope(readNode.target, scope, outer);
+                    CheckInScope(readNode.target, scope, outer);
                     break;
                 case NodeType.Write:
                     WriteNode writeNode = node as WriteNode;
                     if (!(writeNode.content is StringNode))
-                    {                        
-                        return CheckInScope(writeNode.content, scope, outer);
+                    {
+                        CheckInScope(writeNode.content, scope, outer);
                     }
                     break;
                 case NodeType.Variable:
+                    VariableNode variableNode = node as VariableNode;
+                    if (!scope.variables.TryGetValue(variableNode.name, out ValType val))
+                    {
+                        if (!outer.variables.TryGetValue(variableNode.name, out val))
+                        {
+                            throw new SemanticException(ErrorCode.UndeclaredVariable, node.line);
+                        }
+                        else variableNode.type = val;
+                    }
+                    else variableNode.type = val;
                     break;
                 case NodeType.Init:
                     InitNode initNode = node as InitNode;
-                    if (scope.variables.ContainsKey(initNode.variable.name)) throw new Exception();
+                    if (scope.variables.ContainsKey(initNode.variable.name)) throw new SemanticException(ErrorCode.UndeclaredVariable, initNode.variable.line);
                     else scope.variables.Add(initNode.variable.name, initNode.variable.type);
+                    locals.Add((initNode.variable.name, initNode.variable.type));
                     break;
                 case NodeType.Assign:
                     AssignNode assignNode = node as AssignNode;
-                    if (scope.variables.TryGetValue(assignNode.left.name, out ValType val))
+                    if (scope.variables.TryGetValue(assignNode.left.name, out val))
                     {
                         if (val < CheckValueType(assignNode.right, scope, outer))
                         {
-                            return (int)ErrorCode.IllegalCast;
+                            throw new SemanticException(ErrorCode.IllegalCast, assignNode.right.line);
                         }
                     }
                     else if (outer.variables.TryGetValue(assignNode.left.name, out val))
                     {
                         if (val < CheckValueType(assignNode.right, scope, outer))
                         {
-                            return (int)ErrorCode.IllegalCast;
+                            throw new SemanticException(ErrorCode.IllegalCast, assignNode.right.line);
                         }
                     }
-                    else return (int)ErrorCode.UndeclaredVariable;
+                    else throw new SemanticException(ErrorCode.UndeclaredVariable, assignNode.left.line);
+                    break;
+                case NodeType.BinaryOp:
+                    BinaryOpNode binaryOpNode = node as BinaryOpNode;
+                    CheckValueType(binaryOpNode, scope, outer);
+                    break;
+                case NodeType.Comparison:
+                    ComparisonNode comparisonNode = node as ComparisonNode;
+                    CheckValueType(comparisonNode, scope, outer);
+                    break;
+                case NodeType.Parenthesis:
+                    ParenthesisNode parenthesisNode = node as ParenthesisNode;
+                    CheckInScope(parenthesisNode.content, scope, outer);
                     break;
                 case NodeType.Int:
                 case NodeType.Double:
                 case NodeType.Bool:
                 case NodeType.String:
-                case NodeType.BinaryOp:
                     break;
-                case NodeType.Comparison:
+                case NodeType.LogicOp:
+                    LogicOpNode logicNode = node as LogicOpNode;
+                    if (CheckValueType(logicNode.left, scope, outer) != ValType.Bool)
+                        throw new SemanticException(ErrorCode.IllegalCast, logicNode.left.line);
+
+                    if (CheckValueType(logicNode.right, scope, outer) != ValType.Bool)
+                        throw new SemanticException(ErrorCode.IllegalCast, logicNode.right.line);
                     break;
-                case NodeType.Parenthesis:
+                case NodeType.IntCast:
+                    IntCastNode intCastNode = node as IntCastNode;
+                    CheckValueType(intCastNode, scope, outer);
+                    break;
+                case NodeType.DoubleCast:
+                    DoubleCastNode doubleCastNode = node as DoubleCastNode;
+                    CheckValueType(doubleCastNode, scope, outer);
+                    break;
+                case NodeType.Not:
+                    NotNode notNode = node as NotNode;
+                    if (CheckValueType(notNode.content, scope, outer) != ValType.Bool)
+                        throw new SemanticException(ErrorCode.IllegalCast, notNode.content.line);
+                    break;
+                case NodeType.Minus:
+                    MinusNode minusNode = node as MinusNode;
+                    if (CheckValueType(minusNode.content, scope, outer) < ValType.Int)
+                        throw new SemanticException(ErrorCode.IllegalCast, minusNode.content.line);
+                    break;
+                case NodeType.Neg:
+                    NegNode negNode = node as NegNode;
+                    if (CheckValueType(negNode.content, scope, outer) != ValType.Bool)
+                        throw new SemanticException(ErrorCode.IllegalCast, negNode.content.line);
                     break;
             }
-            return 0;
         }
 
         public ValType CheckValueType(Node node, Scope scope, Scope outer)
         {
-            return ValType.Bool;
-        }
-
-        private int GoDeeperInScope(BlockNode node, Scope outer)
-        {
-            Scope scope = new Scope();
-            foreach (Node line in node.instructions)
+            switch (node.GetNodeType())
             {
-                int result = CheckInScope(line, scope, outer);
-                if (result != 0) return result;
+                case NodeType.Variable:
+                    VariableNode variableNode = node as VariableNode;
+                    if (scope.variables.TryGetValue(variableNode.name, out ValType val))
+                    {
+                        variableNode.type = val;
+                        return val;
+                    }
+                    else if (outer.variables.TryGetValue(variableNode.name, out val))
+                    {
+                        variableNode.type = val;
+                        return val;
+                    }
+                    else throw new SemanticException(ErrorCode.UndeclaredVariable, variableNode.line);
+                case NodeType.Int:
+                    return ValType.Int;
+                case NodeType.Double:
+                    return ValType.Double;
+                case NodeType.Bool:
+                    return ValType.Bool;
+                case NodeType.BinaryOp:
+                    BinaryOpNode binaryOpNode = node as BinaryOpNode;
+                    if (binaryOpNode.type == BinaryOpType.BitAnd || binaryOpNode.type == BinaryOpType.BitOr)
+                    {
+                        return ValType.Int;
+                    }
+                    else
+                    {
+                        if ((int)CheckValueType(binaryOpNode.left, scope, outer) * (int)CheckValueType(binaryOpNode.right, scope, outer) > 1)
+                        {
+                            return ValType.Double;
+                        }
+                        else return ValType.Int;
+                    }
+                case NodeType.LogicOp:
+                    LogicOpNode logicOpNode = node as LogicOpNode;
+                    if ((int)CheckValueType(logicOpNode.left, scope, outer) * (int)CheckValueType(logicOpNode.right, scope, outer) > 0)
+                        throw new SemanticException(ErrorCode.IllegalCast, logicOpNode.line);
+                    return ValType.Bool;
+                case NodeType.Comparison:
+                    ComparisonNode comparisonNode = node as ComparisonNode;
+                    CheckInScope(comparisonNode.left, scope, outer);
+                    CheckInScope(comparisonNode.right, scope, outer);
+                    return ValType.Bool;
+                case NodeType.Parenthesis:
+                    ParenthesisNode parenthesisNode = node as ParenthesisNode;
+                    return CheckValueType(parenthesisNode.content, scope, outer);
+                case NodeType.IntCast:
+                    IntCastNode intCastNode = node as IntCastNode;
+                    CheckInScope(intCastNode.content, scope, outer);
+                    return ValType.Int;
+                case NodeType.DoubleCast:
+                    DoubleCastNode doubleCastNode = node as DoubleCastNode;
+                    CheckInScope(doubleCastNode.content, scope, outer);
+                    return ValType.Int;
+                case NodeType.Not:
+                    NotNode notNode = node as NotNode;
+                    if (CheckValueType(notNode.content, scope, outer) != ValType.Bool) throw new SemanticException(ErrorCode.IllegalCast, notNode.content.line);
+                    return ValType.Bool;
+                case NodeType.Minus:
+                    MinusNode minusNode = node as MinusNode;
+                    val = CheckValueType(minusNode.content, scope, outer);
+                    if (val == ValType.Bool)
+                    {
+                        return ValType.Int;
+                    }
+                    else return val;
+                case NodeType.Neg:
+                    NegNode negNode = node as NegNode;
+                    if (CheckValueType(negNode.content, scope, outer) != ValType.Int) throw new SemanticException(ErrorCode.IllegalCast, negNode.content.line);
+                    return ValType.Int;
             }
-            return 0;
+            return ValType.None;
         }
     }
 
@@ -213,7 +418,7 @@ namespace MINICompiler
     {
         public int line = -1;
 
-        public abstract NodeType getType();
+        public abstract NodeType GetNodeType();
 
         public abstract string GenerateCode();
 
@@ -234,11 +439,11 @@ namespace MINICompiler
         }
 
         public override string GenerateCode()
-        {
-            throw new NotImplementedException();
+        {           
+            return "";
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Program;
         }
@@ -257,7 +462,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Block;
         }
@@ -273,10 +478,10 @@ namespace MINICompiler
 
         public override string GenerateCode()
         {
-            return $"call\tvoid [mscorlib]System.Console::WriteLine({content.getType()})\n";
+            return $"call\tvoid [mscorlib]System.Console::WriteLine({content.GetNodeType()})\n";
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Write;
         }
@@ -296,7 +501,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.String;
         }
@@ -328,7 +533,7 @@ namespace MINICompiler
             return result;
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Read;
         }
@@ -350,7 +555,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Variable;
         }
@@ -369,7 +574,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Init;
         }
@@ -390,7 +595,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Assign;
         }
@@ -410,7 +615,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Int;
         }
@@ -430,7 +635,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Double;
         }
@@ -450,7 +655,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Bool;
         }
@@ -474,7 +679,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Comparison;
         }
@@ -498,7 +703,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.BinaryOp;
         }
@@ -521,7 +726,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.LogicOp;
         }
@@ -540,7 +745,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.IntCast;
         }
@@ -559,7 +764,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.DoubleCast;
         }
@@ -578,7 +783,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.Parenthesis;
         }
@@ -601,9 +806,66 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.If;
+        }
+    }
+
+    public class NotNode : Node
+    {
+        public Node content;
+
+        public NotNode(int line) : base(line)
+        {
+        }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override NodeType GetNodeType()
+        {
+            return NodeType.Not;
+        }
+    }
+
+    public class MinusNode : Node
+    {
+        public Node content;
+
+        public MinusNode(int line) : base(line)
+        {
+        }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override NodeType GetNodeType()
+        {
+            return NodeType.Minus;
+        }
+    }
+
+    public class NegNode : Node
+    {
+        public Node content;
+
+        public NegNode(int line) : base(line)
+        {
+        }
+
+        public override string GenerateCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override NodeType GetNodeType()
+        {
+            return NodeType.Minus;
         }
     }
 
@@ -622,7 +884,7 @@ namespace MINICompiler
             throw new NotImplementedException();
         }
 
-        public override NodeType getType()
+        public override NodeType GetNodeType()
         {
             return NodeType.While;
         }

@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  REDPC
-//  DateTime: 09/06/2020 20:31:04
+//  DateTime: 17/06/2020 18:05:37
 //  UserName: MayRe
-//  GPLEX input file <D:\MINICompiler\kompilator.lex - 09/06/2020 19:55:49>
+//  GPLEX input file <D:\MINICompiler\kompilator.lex - 09/06/2020 20:35:27>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize

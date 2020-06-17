@@ -1,0 +1,12 @@
+program
+{
+    int i;
+    i = 2;
+    if(i == 2)
+    {
+        t + 1;
+        int i;
+        i = 1;
+    }
+    write i;
+}

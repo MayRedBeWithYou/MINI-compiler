@@ -5,12 +5,12 @@
 %YYSTYPE Node
 
 %right Assign
-%left And Or
+%left Or And
 %left Comparison
 %left Add Sub
 %left Mult Div
 %left BitOr BitAnd
-%right Minus Tilde Not IntCast DoubleCast
+%right Tilde Not IntCast DoubleCast
 
 %token Program Write Read If Else While Return
 %token OpenPar ClosePar OpenBracket CloseBracket Semicolon
@@ -19,24 +19,19 @@
 %token Variable IntVal DoubleVal BoolVal String
 
 %%
-start			: Program { Compiler.ProgramTree.line = line; } block Eof
+start			: Program { ProgramTree.line = line; } block Eof
 				  {					
-					Compiler.ProgramTree.block = blockStack.Pop();
-					Console.WriteLine("EOF. Lines: " + line);
+					ProgramTree.block = blockStack.Pop();
 				  }
 				;
 block			: OpenBracket
 				  {
 					BlockNode node = new BlockNode(line);
 					blockStack.Push(node);
-					Console.WriteLine("Open block.");
 					$$ = node;
 				  }
 				  lines
 				  CloseBracket
-				  {
-					Console.WriteLine("Close block.");
-				  }
 				;
 lines			: 
 				| instruction { blockStack.Peek().instructions.Add($1);} lines
@@ -46,7 +41,6 @@ instruction		: init Semicolon
 				| write Semicolon
 				| read Semicolon
 				| exp Semicolon
-				| bool Semicolon
 				| if
 				| while
 				;
@@ -101,15 +95,13 @@ assign			: Variable Assign exp
 					$$ = node;
 				} 
 				;
-parExp			: OpenPar exp ClosePar 
+
+exp				: OpenPar exp ClosePar 
 				{
 					ParenthesisNode node = new ParenthesisNode(line);
 					node.content = $2;
 					$$ = node;
 				} 
-				;
-
-exp				: parExp
 				| exp Add exp
 				{
 					BinaryOpNode node = $2 as BinaryOpNode;
@@ -147,37 +139,54 @@ exp				: parExp
 					$$ = AssignToBinaryOp(node, $1 as Node, $3 as Node); 
 				}
 				| Variable
-				| cast
+				| IntCast exp
+				{
+					IntCastNode node = new IntCastNode(line);
+					node.content = $2;
+					$$ = node;
+				}
+				| DoubleCast exp
+				{
+					DoubleCastNode node = new DoubleCastNode(line);
+					node.content = $2;
+					$$ = node;
+				}				
+				| IntVal
+				| DoubleVal
 				| BoolVal
-				;
-
-cast			: IntCast parExp
+				| Not exp
 				{
-					IntCastNode node = new IntCastNode(line);
+					NotNode node = new NotNode(line);
 					node.content = $2;
 					$$ = node;
 				}
-				| DoubleCast parExp
+				| Tilde exp
 				{
-					DoubleCastNode node = new DoubleCastNode(line);
+					NegNode node = new NegNode(line);
 					node.content = $2;
 					$$ = node;
 				}
-				| IntCast Variable
+				| Sub exp
 				{
-					IntCastNode node = new IntCastNode(line);
+					MinusNode node = new MinusNode(line);
 					node.content = $2;
 					$$ = node;
 				}
-				| DoubleCast Variable
+				| exp And exp
 				{
-					DoubleCastNode node = new DoubleCastNode(line);
-					node.content = $2;
+					LogicOpNode node = new LogicOpNode(LogicOpType.And, line);
+					node.left = $1;
+					node.right = $3;
 					$$ = node;
 				}
-				;
-
-comp			: exp Comparison exp 
+				| exp Or exp
+				{
+					LogicOpNode node = new LogicOpNode(LogicOpType.Or, line);
+					node.left = $1;
+					node.right = $3;
+					$$ = node;
+				}
+				| exp Comparison exp 
 				{
 					ComparisonNode node = $2 as ComparisonNode;
 					node.line = line;
@@ -185,32 +194,7 @@ comp			: exp Comparison exp
 				}
 				;
 
-bool			: comp
-				| BoolVal
-				| Variable
-				| Not bool
-				| bool And bool
-				{
-					LogicOpNode node = new LogicOpNode(LogicOpType.And, line);
-					node.left = $1;
-					node.right = $3;
-					$$ = node;
-				}
-				| bool Or bool
-				{
-					LogicOpNode node = new LogicOpNode(LogicOpType.Or, line);
-					node.left = $1;
-					node.right = $3;
-					$$ = node;
-				}
-				| OpenPar bool ClosePar
-				{
-					ParenthesisNode node = new ParenthesisNode(line);
-					node.content = $2;
-					$$ = node;
-				}
-				;
-if				: If OpenPar bool ClosePar block Else block
+if				: If OpenPar exp ClosePar block Else block
 				{
 					IfNode node = new IfNode(line);
 					node.check = $3;
@@ -218,7 +202,7 @@ if				: If OpenPar bool ClosePar block Else block
 					node.ifBlock = blockStack.Pop();
 					$$ = node;
 				}
-				| If OpenPar bool ClosePar block
+				| If OpenPar exp ClosePar block
 				{
 					IfNode node = new IfNode(line);
 					node.check = $3;
@@ -226,7 +210,7 @@ if				: If OpenPar bool ClosePar block Else block
 					$$ = node;
 				}
 				;
-while			: While OpenPar comp ClosePar block
+while			: While OpenPar exp ClosePar block
 				{
 					WhileNode node = new WhileNode(line);
 					node.check = $3 as ComparisonNode;
@@ -237,13 +221,16 @@ while			: While OpenPar comp ClosePar block
 				
 %%
 
-public int line {get => Compiler.ProgramTree.lineCount; }
+public int line {get => ProgramTree.lineCount; }
+
+public ProgramNode ProgramTree;
 
 public Stack<BlockNode> blockStack = new Stack<BlockNode>();
 
-public Node current;
-
-public Parser(Scanner scanner) : base(scanner) { }
+public Parser(Scanner scanner, ProgramNode node) : base(scanner)
+{
+	ProgramTree = node;
+}
 
 public BinaryOpNode AssignToBinaryOp(BinaryOpNode node, Node left, Node right)
 {
