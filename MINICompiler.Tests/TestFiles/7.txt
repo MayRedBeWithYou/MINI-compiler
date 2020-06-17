@@ -1,0 +1,7 @@
+program
+{
+    int i;
+    i = 2;
+    if(true) write "Lol";
+    write i;
+}

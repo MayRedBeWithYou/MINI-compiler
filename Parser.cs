@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  REDPC
-// DateTime: 17/06/2020 18:05:37
+// DateTime: 17/06/2020 23:19:47
 // UserName: MayRe
-// Input file <D:\MINICompiler\kompilator.y - 17/06/2020 16:28:43>
+// Input file <D:\MINICompiler\kompilator.y - 17/06/2020 22:05:48>
 
 // options: lines gplex
 
@@ -53,8 +53,8 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #pragma warning disable 649
   private static Dictionary<int, string> aliases;
 #pragma warning restore 649
-  private static Rule[] rules = new Rule[45];
-  private static State[] states = new State[87];
+  private static Rule[] rules = new Rule[50];
+  private static State[] states = new State[93];
   private static string[] nonTerms = new string[] {
       "start", "$accept", "Anon@1", "block", "Anon@2", "lines", "instruction", 
       "Anon@3", "init", "assign", "write", "read", "exp", "if", "while", };
@@ -68,11 +68,11 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     states[5] = new State(new int[]{30,6});
     states[6] = new State(-3);
     states[7] = new State(-4,new int[]{-5,8});
-    states[8] = new State(new int[]{32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,82,28,-6},new int[]{-6,9,-7,11,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,81});
+    states[8] = new State(new int[]{32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,83,28,-6},new int[]{-6,9,-7,11,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,82});
     states[9] = new State(new int[]{28,10});
     states[10] = new State(-5);
     states[11] = new State(-7,new int[]{-8,12});
-    states[12] = new State(new int[]{32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,82,28,-6},new int[]{-6,13,-7,11,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,81});
+    states[12] = new State(new int[]{32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,83,28,-6},new int[]{-6,13,-7,11,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,82});
     states[13] = new State(-8);
     states[14] = new State(new int[]{29,15});
     states[15] = new State(-9);
@@ -137,16 +137,22 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     states[74] = new State(new int[]{25,75});
     states[75] = new State(new int[]{25,45,35,48,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60},new int[]{-13,76});
     states[76] = new State(new int[]{26,77,8,27,9,29,10,31,11,33,13,35,12,37,6,39,5,41,7,43});
-    states[77] = new State(new int[]{27,7},new int[]{-4,78});
-    states[78] = new State(new int[]{22,79,32,-43,33,-43,34,-43,35,-43,19,-43,20,-43,25,-43,16,-43,17,-43,36,-43,37,-43,38,-43,15,-43,14,-43,9,-43,21,-43,23,-43,28,-43});
-    states[79] = new State(new int[]{27,7},new int[]{-4,80});
-    states[80] = new State(-42);
-    states[81] = new State(-15);
-    states[82] = new State(new int[]{25,83});
-    states[83] = new State(new int[]{25,45,35,48,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60},new int[]{-13,84});
-    states[84] = new State(new int[]{26,85,8,27,9,29,10,31,11,33,13,35,12,37,6,39,5,41,7,43});
-    states[85] = new State(new int[]{27,7},new int[]{-4,86});
-    states[86] = new State(-44);
+    states[77] = new State(new int[]{27,7,32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,83},new int[]{-4,78,-7,89,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,82});
+    states[78] = new State(new int[]{22,79,32,-42,33,-42,34,-42,35,-42,19,-42,20,-42,25,-42,16,-42,17,-42,36,-42,37,-42,38,-42,15,-42,14,-42,9,-42,21,-42,23,-42,28,-42});
+    states[79] = new State(new int[]{32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,83,27,7},new int[]{-7,80,-4,81,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,82});
+    states[80] = new State(-45);
+    states[81] = new State(-47);
+    states[82] = new State(-15);
+    states[83] = new State(new int[]{25,84});
+    states[84] = new State(new int[]{25,45,35,48,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60},new int[]{-13,85});
+    states[85] = new State(new int[]{26,86,8,27,9,29,10,31,11,33,13,35,12,37,6,39,5,41,7,43});
+    states[86] = new State(new int[]{27,7,32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,83},new int[]{-4,87,-7,88,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,82});
+    states[87] = new State(-48);
+    states[88] = new State(-49);
+    states[89] = new State(new int[]{22,90,32,-43,33,-43,34,-43,35,-43,19,-43,20,-43,25,-43,16,-43,17,-43,36,-43,37,-43,38,-43,15,-43,14,-43,9,-43,21,-43,23,-43,28,-43});
+    states[90] = new State(new int[]{32,16,33,18,34,20,35,24,19,64,20,69,25,45,16,49,17,51,36,53,37,54,38,55,15,56,14,58,9,60,21,74,23,83,27,7},new int[]{-7,91,-4,92,-9,14,-10,22,-11,62,-12,67,-13,71,-14,73,-15,82});
+    states[91] = new State(-44);
+    states[92] = new State(-46);
 
     for (int sNo = 0; sNo < states.Length; sNo++) states[sNo].number = sNo;
 
@@ -191,9 +197,14 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     rules[39] = new Rule(-13, new int[]{-13,6,-13});
     rules[40] = new Rule(-13, new int[]{-13,5,-13});
     rules[41] = new Rule(-13, new int[]{-13,7,-13});
-    rules[42] = new Rule(-14, new int[]{21,25,-13,26,-4,22,-4});
-    rules[43] = new Rule(-14, new int[]{21,25,-13,26,-4});
-    rules[44] = new Rule(-15, new int[]{23,25,-13,26,-4});
+    rules[42] = new Rule(-14, new int[]{21,25,-13,26,-4});
+    rules[43] = new Rule(-14, new int[]{21,25,-13,26,-7});
+    rules[44] = new Rule(-14, new int[]{21,25,-13,26,-7,22,-7});
+    rules[45] = new Rule(-14, new int[]{21,25,-13,26,-4,22,-7});
+    rules[46] = new Rule(-14, new int[]{21,25,-13,26,-7,22,-4});
+    rules[47] = new Rule(-14, new int[]{21,25,-13,26,-4,22,-4});
+    rules[48] = new Rule(-15, new int[]{23,25,-13,26,-4});
+    rules[49] = new Rule(-15, new int[]{23,25,-13,26,-7});
   }
 
   protected override void Initialize() {
@@ -247,7 +258,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 55 "D:\MINICompiler\kompilator.y"
     {
 					WriteNode node = new WriteNode(line);
-					node.content = ValueStack[ValueStack.Depth-1];
+					node.content = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -266,7 +277,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					InitNode node = new InitNode(line);
 					node.variable = ValueStack[ValueStack.Depth-1] as VariableNode;
-					node.variable.type = ValType.Int;
+					node.variable.valType = ValType.Int;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -276,7 +287,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					InitNode node = new InitNode(line);
 					node.variable = ValueStack[ValueStack.Depth-1] as VariableNode;
-					node.variable.type = ValType.Double;
+					node.variable.valType = ValType.Double;
 					CurrentSemanticValue = node;
 					}
 #line default
@@ -286,7 +297,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					InitNode node = new InitNode(line);
 					node.variable = ValueStack[ValueStack.Depth-1] as VariableNode;
-					node.variable.type = ValType.Bool;
+					node.variable.valType = ValType.Bool;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -296,7 +307,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					AssignNode node = new AssignNode(line);
 					node.left = ValueStack[ValueStack.Depth-3] as VariableNode;
-					node.right = ValueStack[ValueStack.Depth-1];
+					node.right = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -305,7 +316,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 100 "D:\MINICompiler\kompilator.y"
     {
 					ParenthesisNode node = new ParenthesisNode(line);
-					node.content = ValueStack[ValueStack.Depth-2];
+					node.content = ValueStack[ValueStack.Depth-2] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -315,7 +326,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					BinaryOpNode node = ValueStack[ValueStack.Depth-2] as BinaryOpNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
@@ -324,7 +335,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					BinaryOpNode node = ValueStack[ValueStack.Depth-2] as BinaryOpNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
@@ -333,7 +344,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					BinaryOpNode node = ValueStack[ValueStack.Depth-2] as BinaryOpNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
@@ -342,7 +353,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					BinaryOpNode node = ValueStack[ValueStack.Depth-2] as BinaryOpNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
@@ -351,7 +362,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					BinaryOpNode node = ValueStack[ValueStack.Depth-2] as BinaryOpNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
@@ -360,7 +371,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					BinaryOpNode node = ValueStack[ValueStack.Depth-2] as BinaryOpNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToBinaryOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
@@ -368,7 +379,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 143 "D:\MINICompiler\kompilator.y"
     {
 					IntCastNode node = new IntCastNode(line);
-					node.content = ValueStack[ValueStack.Depth-1];
+					node.content = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -377,7 +388,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 149 "D:\MINICompiler\kompilator.y"
     {
 					DoubleCastNode node = new DoubleCastNode(line);
-					node.content = ValueStack[ValueStack.Depth-1];
+					node.content = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -386,7 +397,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 158 "D:\MINICompiler\kompilator.y"
     {
 					NotNode node = new NotNode(line);
-					node.content = ValueStack[ValueStack.Depth-1];
+					node.content = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -395,7 +406,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 164 "D:\MINICompiler\kompilator.y"
     {
 					NegNode node = new NegNode(line);
-					node.content = ValueStack[ValueStack.Depth-1];
+					node.content = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -404,7 +415,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 170 "D:\MINICompiler\kompilator.y"
     {
 					MinusNode node = new MinusNode(line);
-					node.content = ValueStack[ValueStack.Depth-1];
+					node.content = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -413,8 +424,8 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 176 "D:\MINICompiler\kompilator.y"
     {
 					LogicOpNode node = new LogicOpNode(LogicOpType.And, line);
-					node.left = ValueStack[ValueStack.Depth-3];
-					node.right = ValueStack[ValueStack.Depth-1];
+					node.left = ValueStack[ValueStack.Depth-3] as ExpressionNode;
+					node.right = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -423,8 +434,8 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
 #line 183 "D:\MINICompiler\kompilator.y"
     {
 					LogicOpNode node = new LogicOpNode(LogicOpType.Or, line);
-					node.left = ValueStack[ValueStack.Depth-3];
-					node.right = ValueStack[ValueStack.Depth-1];
+					node.left = ValueStack[ValueStack.Depth-3] as ExpressionNode;
+					node.right = ValueStack[ValueStack.Depth-1] as ExpressionNode;
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -434,37 +445,90 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
     {
 					ComparisonNode node = ValueStack[ValueStack.Depth-2] as ComparisonNode;
 					node.line = line;
-					CurrentSemanticValue = AssignToComparisonOp(node, ValueStack[ValueStack.Depth-3] as Node, ValueStack[ValueStack.Depth-1] as Node); 
+					CurrentSemanticValue = AssignToComparisonOp(node, ValueStack[ValueStack.Depth-3] as ExpressionNode, ValueStack[ValueStack.Depth-1] as ExpressionNode); 
 				}
 #line default
         break;
-      case 42: // if -> If, OpenPar, exp, ClosePar, block, Else, block
+      case 42: // if -> If, OpenPar, exp, ClosePar, block
 #line 198 "D:\MINICompiler\kompilator.y"
     {
 					IfNode node = new IfNode(line);
-					node.check = ValueStack[ValueStack.Depth-5];
+					node.check = ValueStack[ValueStack.Depth-3] as ExpressionNode;
+					node.ifBlock = blockStack.Pop();
+					CurrentSemanticValue = node;
+				}
+#line default
+        break;
+      case 43: // if -> If, OpenPar, exp, ClosePar, instruction
+#line 205 "D:\MINICompiler\kompilator.y"
+    {
+					IfNode node = new IfNode(line);
+					node.check = ValueStack[ValueStack.Depth-3] as ExpressionNode;
+					node.ifBlock = ValueStack[ValueStack.Depth-1];
+					CurrentSemanticValue = node;
+				}
+#line default
+        break;
+      case 44: // if -> If, OpenPar, exp, ClosePar, instruction, Else, instruction
+#line 212 "D:\MINICompiler\kompilator.y"
+    {
+					IfNode node = new IfNode(line);
+					node.check = ValueStack[ValueStack.Depth-5] as ExpressionNode;
+					node.elseBlock = ValueStack[ValueStack.Depth-1];
+					node.ifBlock = ValueStack[ValueStack.Depth-3];
+					CurrentSemanticValue = node;
+				}
+#line default
+        break;
+      case 45: // if -> If, OpenPar, exp, ClosePar, block, Else, instruction
+#line 220 "D:\MINICompiler\kompilator.y"
+    {
+					IfNode node = new IfNode(line);
+					node.check = ValueStack[ValueStack.Depth-5] as ExpressionNode;
+					node.elseBlock = ValueStack[ValueStack.Depth-1];
+					node.ifBlock = blockStack.Pop();
+					CurrentSemanticValue = node;
+				}
+#line default
+        break;
+      case 46: // if -> If, OpenPar, exp, ClosePar, instruction, Else, block
+#line 228 "D:\MINICompiler\kompilator.y"
+    {
+					IfNode node = new IfNode(line);
+					node.check = ValueStack[ValueStack.Depth-5] as ExpressionNode;
+					node.elseBlock = blockStack.Pop();
+					node.ifBlock = ValueStack[ValueStack.Depth-3];
+					CurrentSemanticValue = node;
+				}
+#line default
+        break;
+      case 47: // if -> If, OpenPar, exp, ClosePar, block, Else, block
+#line 236 "D:\MINICompiler\kompilator.y"
+    {
+					IfNode node = new IfNode(line);
+					node.check = ValueStack[ValueStack.Depth-5] as ExpressionNode;
 					node.elseBlock = blockStack.Pop();
 					node.ifBlock = blockStack.Pop();
 					CurrentSemanticValue = node;
 				}
 #line default
         break;
-      case 43: // if -> If, OpenPar, exp, ClosePar, block
-#line 206 "D:\MINICompiler\kompilator.y"
+      case 48: // while -> While, OpenPar, exp, ClosePar, block
+#line 245 "D:\MINICompiler\kompilator.y"
     {
-					IfNode node = new IfNode(line);
-					node.check = ValueStack[ValueStack.Depth-3];
-					node.ifBlock = blockStack.Pop();
+					WhileNode node = new WhileNode(line);
+					node.check = ValueStack[ValueStack.Depth-3] as ExpressionNode;
+					node.block = blockStack.Pop();
 					CurrentSemanticValue = node;
 				}
 #line default
         break;
-      case 44: // while -> While, OpenPar, exp, ClosePar, block
-#line 214 "D:\MINICompiler\kompilator.y"
+      case 49: // while -> While, OpenPar, exp, ClosePar, instruction
+#line 252 "D:\MINICompiler\kompilator.y"
     {
 					WhileNode node = new WhileNode(line);
-					node.check = ValueStack[ValueStack.Depth-3] as ComparisonNode;
-					node.block = blockStack.Pop();
+					node.check = ValueStack[ValueStack.Depth-3] as ExpressionNode;
+					node.block = ValueStack[ValueStack.Depth-1];
 					CurrentSemanticValue = node;
 				}
 #line default
@@ -483,7 +547,7 @@ public class Parser: ShiftReduceParser<Node, LexLocation>
         return CharToString((char)terminal);
   }
 
-#line 223 "D:\MINICompiler\kompilator.y"
+#line 261 "D:\MINICompiler\kompilator.y"
 
 public int line {get => ProgramTree.lineCount; }
 
@@ -496,7 +560,7 @@ public Parser(Scanner scanner, ProgramNode node) : base(scanner)
 	ProgramTree = node;
 }
 
-public BinaryOpNode AssignToBinaryOp(BinaryOpNode node, Node left, Node right)
+public BinaryOpNode AssignToBinaryOp(BinaryOpNode node, ExpressionNode left, ExpressionNode right)
 {
 	node.line = line;
 	node.left = left;
@@ -504,7 +568,7 @@ public BinaryOpNode AssignToBinaryOp(BinaryOpNode node, Node left, Node right)
 	return node;
 }
 
-public ComparisonNode AssignToComparisonOp(ComparisonNode node, Node left, Node right)
+public ComparisonNode AssignToComparisonOp(ComparisonNode node, ExpressionNode left, ExpressionNode right)
 {
 	node.line = line;
 	node.left = left;

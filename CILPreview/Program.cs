@@ -10,30 +10,17 @@ namespace CILPreview
     {
         static void Main(string[] args)
         {
-            int i1;
-            int i2;
-            double d1;
-            bool b1;
-            i1 = 2;
-            i2 = int.Parse(Console.ReadLine());
-            d1 = double.Parse(Console.ReadLine());
-            b1 = bool.Parse(Console.ReadLine());
-            i1 = i2 + i1;
-            i2 = i1 * i1;
-            i1 = i2 - i1;
-            i2 = i2 / i1;
-            i2 = i1;
-            if (b1)
-            {
-                int i3 = 1;
-                i3 = i3 + 1;
-                i2 = i3 - 10;
-                b1 = false;
-            }
-            Console.Write(i1);
-            Console.Write(i2);
-            Console.Write(d1);
-            Console.Write(b1);
+            int i = 5;
+            double d = 123.456;
+            bool b = true;
+            Console.Write(i);
+            Console.Write("\n");
+            Console.Write(string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            "{0:0.000000}", d));
+            Console.Write("\n");
+            Console.Write(b);
+            Console.Write("\n");
         }
     }
 }

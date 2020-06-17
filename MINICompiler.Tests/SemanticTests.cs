@@ -32,7 +32,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(0, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }
@@ -43,7 +43,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(1, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }
@@ -54,7 +54,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(2, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }
@@ -65,7 +65,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(3, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual((int)ErrorCode.UndeclaredVariable, result);
         }
@@ -76,7 +76,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(4, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual((int)ErrorCode.UndeclaredVariable, result);
         }
@@ -87,7 +87,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(5, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual((int)ErrorCode.UndeclaredVariable, result);
         }
@@ -98,9 +98,20 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(6, node);
             parser.Parse();
-            ProgramTreeChecker checker = new ProgramTreeChecker(node);
+            CodeChecker checker = new CodeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual((int)ErrorCode.IllegalCast, result);
+        }
+
+        [TestMethod]
+        public void IfWithInstruction()
+        {
+            ProgramNode node = new ProgramNode();
+            Parser parser = PrepareFile(7, node);
+            parser.Parse();
+            CodeChecker checker = new CodeChecker(node);
+            int result = checker.CheckSemantics();
+            Assert.AreEqual(0, result);
         }
     }
 }
