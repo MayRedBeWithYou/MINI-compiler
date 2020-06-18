@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using GardensPoint;
 using System.Linq.Expressions;
 using System.Text;
+using System.Linq;
 
 namespace MINICompiler
 {
@@ -135,9 +136,16 @@ namespace MINICompiler
         }
     }
 
+    public struct LocalVariable
+    {
+        public string Name { get; set; }
+        public ValType Type { get; set; }
+        public int Depth { get; set; }
+    }
+
     public class CodeChecker
     {
-        public List<(string name, ValType type)> locals = new List<(string name, ValType type)>();
+        public List<LocalVariable> locals = new List<LocalVariable>();
 
         ProgramNode program;
 
@@ -154,7 +162,7 @@ namespace MINICompiler
 
         public int CheckSemantics()
         {
-            Scope scope = new Scope();
+            Scope scope = new Scope(0);
             try
             {
                 GoDeeperInScope(program.block, scope);
@@ -169,7 +177,7 @@ namespace MINICompiler
 
         private void GoDeeperInScope(BlockNode node, Scope outer)
         {
-            Scope scope = new Scope();
+            Scope scope = new Scope(outer.Depth + 1);
             foreach (Node line in node.instructions)
             {
                 CheckInScope(line, scope, outer);
@@ -178,16 +186,10 @@ namespace MINICompiler
 
         public void CheckInScope(Node node, Scope inner, Scope outer)
         {
-            if(node is InitNode inNode)
-            {
-                inNode.variable.LocalIndex = 69;
-                return;
-            }
-
             switch (node.GetNodeType())
             {
                 case NodeType.Block:
-                    Scope newOuter = new Scope(outer);
+                    Scope newOuter = new Scope(outer, outer.Depth);
                     newOuter.AddScope(inner);
                     GoDeeperInScope(node as BlockNode, newOuter);
                     break;
@@ -230,31 +232,26 @@ namespace MINICompiler
                         else variableNode.valType = val;
                     }
                     else variableNode.valType = val;
+                    LocalVariable v = locals.Where(x => x.Name == variableNode.name && x.Type == variableNode.valType
+                                            && x.Depth <= inner.Depth).OrderByDescending(x => x.Depth).First();
+                    variableNode.LocalIndex = locals.IndexOf(v);
                     break;
                 case NodeType.Init:
                     InitNode initNode = node as InitNode;
                     if (inner.variables.ContainsKey(initNode.variable.name)) throw new SemanticException(ErrorCode.VariableAlreadyDeclared, initNode.variable.line);
                     else inner.variables.Add(initNode.variable.name, initNode.variable.valType);
                     initNode.variable.LocalIndex = locals.Count;
-                    locals.Add((initNode.variable.name, initNode.variable.valType));
+                    locals.Add(new LocalVariable { Name = initNode.variable.name, Type = initNode.variable.valType, Depth = inner.Depth });
                     break;
                 case NodeType.Assign:
                     AssignNode assignNode = node as AssignNode;
-                    if (inner.variables.TryGetValue(assignNode.left.name, out val))
+                    CheckInScope(assignNode.left, inner, outer);
+                    ValType right = CheckValueType(assignNode.right, inner, outer);
+                    if (assignNode.left.valType != right && !(assignNode.left.valType == ValType.Double && right == ValType.Int))
                     {
-                        if (val < CheckValueType(assignNode.right, inner, outer))
-                        {
-                            throw new SemanticException(ErrorCode.IllegalCast, assignNode.right.line);
-                        }
+                        throw new SemanticException(ErrorCode.IllegalCast, assignNode.right.line);
                     }
-                    else if (outer.variables.TryGetValue(assignNode.left.name, out val))
-                    {
-                        if (val < CheckValueType(assignNode.right, inner, outer))
-                        {
-                            throw new SemanticException(ErrorCode.IllegalCast, assignNode.right.line);
-                        }
-                    }
-                    else throw new SemanticException(ErrorCode.UndeclaredVariable, assignNode.left.line);
+
                     break;
                 case NodeType.BinaryOp:
                     BinaryOpNode binaryOpNode = node as BinaryOpNode;
@@ -396,8 +393,8 @@ namespace MINICompiler
             for (int i = 0; i < locals.Count; i++)
             {
                 sb.Append($"[{i}] ");
-                sb.Append(Tools.ValTypeToString(locals[i].type));
-                sb.Append($" {locals[i].name},");
+                sb.Append(Tools.ValTypeToString(locals[i].Type));
+                sb.Append($" {locals[i].Name},");
                 sb.AppendLine();
             }
             sb.Remove(sb.Length - 3, 1);
@@ -415,13 +412,19 @@ namespace MINICompiler
 
     public class Scope
     {
-        public Dictionary<string, ValType> variables = new Dictionary<string, ValType>();
+        public readonly Dictionary<string, ValType> variables = new Dictionary<string, ValType>();
 
-        public Scope() { }
+        public int Depth { get; set; }
 
-        public Scope(Scope outer)
+        public Scope(int depth)
+        {
+            Depth = depth;
+        }
+
+        public Scope(Scope outer, int depth)
         {
             this.variables = new Dictionary<string, ValType>(outer.variables);
+            this.Depth = depth;
         }
 
         public Scope(Dictionary<string, ValType> v)
@@ -441,6 +444,8 @@ namespace MINICompiler
     public abstract class Node
     {
         public int line = -1;
+
+        public int depth = 1;
 
         public abstract NodeType GetNodeType();
 
@@ -536,8 +541,18 @@ namespace MINICompiler
             string type;
             if (content is StringNode) type = "string";
             else type = (content as ExpressionNode).GetValueTypeString();
-            string result = content.GenerateCode();
-            return result + $"call\tvoid [mscorlib]System.Console::Write({type})\n";
+            if(type == "float64")
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("call class [mscorlib]System.Globalization.CultureInfo [mscorlib]System.Globalization.CultureInfo::get_InvariantCulture()");
+                sb.AppendLine(@"ldstr ""{ 0:0.000000}""");
+                sb.Append(content.GenerateCode());
+                sb.AppendLine("box [mscorlib]System.Double");
+                sb.AppendLine("call string [mscorlib]System.String::Format(class [mscorlib]System.IFormatProvider, string, object)");
+                sb.AppendLine("call void [mscorlib]System.Console::Write(string)");
+                return sb.ToString();
+            }
+            else return content.GenerateCode() + $"call\tvoid [mscorlib]System.Console::Write({type})\n";
         }
 
         public override NodeType GetNodeType()
