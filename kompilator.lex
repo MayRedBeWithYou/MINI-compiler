@@ -44,7 +44,7 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 "("			{ return (int)Tokens.OpenPar;}
 ")"			{ return (int)Tokens.ClosePar;}
 ";"			{ return (int)Tokens.Semicolon; }
-"\n"		{ Compiler.ProgramTree.lineCount++; }
+"\n"		{ ProgramTree.lineCount++; }
 " "         { }
 "\t"        { }
 "{"			{ return (int)Tokens.OpenBracket;}
@@ -53,12 +53,19 @@ Ident		[a-zA-Z][a-zA-Z0-9]*
 "else"		{ return (int)Tokens.Else;}
 "while"		{ return (int)Tokens.While;}
 
-{DoubleVal}	{ yylval = new DoubleNode(double.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.DoubleVal; }
-{IntVal}	{ yylval = new IntNode(int.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.IntVal; }
-{BoolVal}	{ yylval = new BoolNode(bool.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.BoolVal; }
-{String}	{ yylval = new StringNode(yytext, Compiler.ProgramTree.lineCount); return (int)Tokens.String; }
-{Ident}		{ yylval = new VariableNode(yytext, Compiler.ProgramTree.lineCount); return (int)Tokens.Variable; }
+{DoubleVal}	{ yylval = new DoubleNode(double.Parse(yytext), ProgramTree.lineCount); return (int)Tokens.DoubleVal; }
+{IntVal}	{ yylval = new IntNode(int.Parse(yytext), ProgramTree.lineCount); return (int)Tokens.IntVal; }
+{BoolVal}	{ yylval = new BoolNode(bool.Parse(yytext), ProgramTree.lineCount); return (int)Tokens.BoolVal; }
+{String}	{ yylval = new StringNode(yytext, ProgramTree.lineCount); return (int)Tokens.String; }
+{Ident}		{ yylval = new VariableNode(yytext, ProgramTree.lineCount); return (int)Tokens.Variable; }
 
 <<EOF>>		{ return (int)Tokens.Eof; }
 
 %%
+
+ProgramNode ProgramTree;
+
+public Scanner(FileStream stream, ProgramNode tree) : this(stream)
+{
+	ProgramTree = tree;
+}

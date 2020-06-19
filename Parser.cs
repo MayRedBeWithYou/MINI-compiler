@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  REDPC
-// DateTime: 18/06/2020 17:39:47
+// DateTime: 19/06/2020 16:50:05
 // UserName: MayRe
-// Input file <D:\MINICompiler\kompilator.y - 17/06/2020 22:05:48>
+// Input file <D:\MINICompiler\kompilator.y - 19/06/2020 16:44:00>
 
 // options: lines gplex
 

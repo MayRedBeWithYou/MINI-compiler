@@ -112,17 +112,20 @@ namespace MINICompiler
 
     public class Compiler
     {
-        public static ProgramNode ProgramTree = new ProgramNode();
-
         public static int Main(string[] args)
         {
             if (args.Length == 0) return -1;
             FileStream source = new FileStream(args[0], FileMode.Open);
-            Scanner scanner = new Scanner(source);
+
+            ProgramNode ProgramTree = new ProgramNode();
+
+            Scanner scanner = new Scanner(source, ProgramTree);
             Parser parser = new Parser(scanner, ProgramTree);
             parser.Parse();
+
             CodeChecker checker = new CodeChecker(ProgramTree);
             int result = checker.CheckSemantics();
+
             Console.WriteLine("Parsing ended with code: " + result);
             if (result == 0)
             {
@@ -309,18 +312,9 @@ namespace MINICompiler
             switch (node.GetNodeType())
             {
                 case NodeType.Variable:
+                    CheckInScope(node, scope, outer);
                     VariableNode variableNode = node as VariableNode;
-                    if (scope.variables.TryGetValue(variableNode.name, out ValType val))
-                    {
-                        variableNode.valType = val;
-                        return val;
-                    }
-                    else if (outer.variables.TryGetValue(variableNode.name, out val))
-                    {
-                        variableNode.valType = val;
-                        return val;
-                    }
-                    else throw new SemanticException(ErrorCode.UndeclaredVariable, variableNode.line);
+                    return variableNode.valType;
                 case NodeType.Int:
                     return ValType.Int;
                 case NodeType.Double:
@@ -368,7 +362,7 @@ namespace MINICompiler
                     return ValType.Bool;
                 case NodeType.Minus:
                     MinusNode minusNode = node as MinusNode;
-                    val = CheckValueType(minusNode.content, scope, outer);
+                    ValType val = CheckValueType(minusNode.content, scope, outer);
                     if (val == ValType.Bool)
                     {
                         return ValType.Int;
@@ -384,8 +378,10 @@ namespace MINICompiler
 
         public string GenerateCode(ProgramNode node)
         {
-            StringBuilder sb = new StringBuilder(".method private hidebysig static void  Main(string[] args) cil managed");
-            sb.AppendLine();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(".assembly extern mscorlib { }");
+            sb.AppendLine(".assembly MINICompiler { }");
+            sb.AppendLine(".method public static void Main()");
             sb.AppendLine("{");
             sb.AppendLine(".entrypoint");
             sb.AppendLine(".locals init (");
@@ -541,7 +537,7 @@ namespace MINICompiler
             string type;
             if (content is StringNode) type = "string";
             else type = (content as ExpressionNode).GetValueTypeString();
-            if(type == "float64")
+            if (type == "float64")
             {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("call class [mscorlib]System.Globalization.CultureInfo [mscorlib]System.Globalization.CultureInfo::get_InvariantCulture()");
@@ -851,6 +847,10 @@ namespace MINICompiler
 
     public class LogicOpNode : ExpressionNode
     {
+        private static int id = 0;
+
+        public static int GetUniqueId() { return id++; }
+
         public Node left;
 
         public Node right;
@@ -864,7 +864,36 @@ namespace MINICompiler
         }
         public override string GenerateCode()
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(left.GenerateCode());
+
+            string shortC = "S_" + GetUniqueId();
+            string outC = "O_" + GetUniqueId();
+
+            switch (type)
+            {
+                case LogicOpType.And:
+                    sb.AppendLine("brfalse " + shortC);
+                    sb.Append(right.GenerateCode());
+                    sb.AppendLine("brfalse " + shortC);
+                    sb.AppendLine("ldc.i4.1");
+                    sb.AppendLine("br " + outC);
+                    sb.AppendLine(shortC + ": ldc.i4.0");
+                    sb.AppendLine("br " + outC);
+                    break;
+                case LogicOpType.Or:
+                    sb.AppendLine("brtrue " + shortC);
+                    sb.Append(right.GenerateCode());
+                    sb.AppendLine("brtrue " + shortC);
+                    sb.AppendLine("ldc.i4.0");
+                    sb.AppendLine("br " + outC);
+                    sb.AppendLine(shortC + ": ldc.i4.1");
+                    sb.AppendLine("br " + outC);
+                    break;
+            }
+            sb.AppendLine(outC + ": nop");
+            return sb.ToString();
         }
 
         public override NodeType GetNodeType()
@@ -934,11 +963,19 @@ namespace MINICompiler
 
     public class IfNode : Node
     {
+        private static int id = 0;
+
+        public static int GetUniqueId() { return id++; }
+
         public ExpressionNode check;
 
         public Node ifBlock;
 
         public Node elseBlock;
+
+        string elseId = "ELSE_" + GetUniqueId();
+
+        string afterId = "AFIF_" + GetUniqueId();
 
         public IfNode(int line) : base(line)
         {
@@ -946,7 +983,26 @@ namespace MINICompiler
 
         public override string GenerateCode()
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(check.GenerateCode());
+
+            if (elseBlock is null)
+            {
+                sb.AppendLine("brfalse " + afterId);
+                sb.Append(ifBlock.GenerateCode());
+            }
+            else
+            {
+                sb.AppendLine("brfalse " + elseId);
+                sb.Append(ifBlock.GenerateCode());
+                sb.AppendLine("br " + afterId);
+                sb.AppendLine(elseId + ": nop");
+                sb.Append(elseBlock.GenerateCode());
+            }
+            sb.AppendLine(afterId + ": nop");
+
+            return sb.ToString();
         }
 
         public override NodeType GetNodeType()
@@ -1020,9 +1076,17 @@ namespace MINICompiler
 
     public class WhileNode : Node
     {
+        private static int id = 0;
+
+        public static int GetUniqueId() { return id++; }
+
         public ExpressionNode check;
 
         public Node block;
+
+        string checkId = "WC_" + GetUniqueId();
+
+        string blockId = "WB_" + GetUniqueId();
 
         public WhileNode(int line) : base(line)
         {
@@ -1030,7 +1094,20 @@ namespace MINICompiler
 
         public override string GenerateCode()
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine("br " + checkId);
+            sb.AppendLine();
+            sb.AppendLine(blockId + ": nop");
+            sb.Append(block.GenerateCode());
+            sb.AppendLine();
+            sb.AppendLine(checkId + ": nop");
+            sb.Append(check.GenerateCode());
+            sb.AppendLine("brtrue " + blockId);
+
+
+            return sb.ToString();
         }
 
         public override NodeType GetNodeType()

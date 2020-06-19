@@ -1,33 +1,32 @@
-.method private hidebysig static void  Main(string[] args) cil managed
+.assembly extern mscorlib { }
+.assembly MINICompiler { }
+.method public static void Main()
 {
 .entrypoint
 .locals init (
-[0] int32 i,
-[1] float64 d,
-[2] bool b
+[0] int32 a
 )
 
-ldc.i4.s 5
+call string [mscorlib]System.Console::ReadLine()
+call int32 [mscorlib]System.Int32::Parse(string)
+stloc.0
+
+br WC_0
+
+WB_1: nop
+ldloc.s 0
+ldc.i4.s 1
+sub
 stloc.s 0
-ldc.r8 123.456
-stloc.s 1
-ldc.i4.1
-stloc.s 2
 ldloc.s 0
 call	void [mscorlib]System.Console::Write(int32)
 ldstr "\n"
 call	void [mscorlib]System.Console::Write(string)
-call class [mscorlib]System.Globalization.CultureInfo [mscorlib]System.Globalization.CultureInfo::get_InvariantCulture()
-ldstr "{ 0:0.000000}"
-ldloc.s 1
-box [mscorlib]System.Double
-call string [mscorlib]System.String::Format(class [mscorlib]System.IFormatProvider, string, object)
-call void [mscorlib]System.Console::Write(string)
-ldstr "\n"
-call	void [mscorlib]System.Console::Write(string)
-ldloc.s 2
-call	void [mscorlib]System.Console::Write(bool)
-ldstr "\n"
-call	void [mscorlib]System.Console::Write(string)
+
+WC_0: nop
+ldloc.s 0
+ldc.i4.s 5
+cgt
+brtrue WB_1
 ret
 }

@@ -1,15 +1,11 @@
 program
- {
- int i;
- double d;
- bool b;
- i = 5;
- d = 123.456;
- b = true;
- write i;
- write "\n";
- write d;
- write "\n";
- write b;
- write "\n";
- } 
+{
+	int a;
+	read a;
+	while(a > 5)
+	{
+		a = a - 1;
+		write a;
+		write "\n";
+	}
+} 

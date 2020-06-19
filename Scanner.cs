@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  REDPC
-//  DateTime: 18/06/2020 17:39:47
+//  DateTime: 19/06/2020 16:50:05
 //  UserName: MayRe
-//  GPLEX input file <D:\MINICompiler\kompilator.lex - 09/06/2020 20:35:27>
+//  GPLEX input file <D:\MINICompiler\kompilator.lex - 19/06/2020 16:47:32>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -1016,7 +1016,7 @@ return (int)Tokens.Eof;
 { }
             break;
         case 2: // Recognized '"\n"',	Shortest string "\n"
-Compiler.ProgramTree.lineCount++;
+ProgramTree.lineCount++;
             break;
         case 3: // Recognized '" "',	Shortest string "\x20"
 { }
@@ -1047,7 +1047,7 @@ yylval = new BinaryOpNode(BinaryOpType.Div); return (int)Tokens.Div;
             break;
         case 12: // Recognized '{IntVal}',	Shortest string "0"
         case 13: // Recognized '{IntVal}',	Shortest string "1"
-yylval = new IntNode(int.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.IntVal;
+yylval = new IntNode(int.Parse(yytext), ProgramTree.lineCount); return (int)Tokens.IntVal;
             break;
         case 14: // Recognized '";"',	Shortest string ";"
 return (int)Tokens.Semicolon;
@@ -1097,7 +1097,7 @@ yylval = new ComparisonNode(ComparisonType.Greater); return (int)Tokens.Comparis
         case 64: // Recognized '{Ident}',	Shortest string "doubl"
         case 66: // Recognized '{Ident}',	Shortest string "bo"
         case 67: // Recognized '{Ident}',	Shortest string "boo"
-yylval = new VariableNode(yytext, Compiler.ProgramTree.lineCount); return (int)Tokens.Variable;
+yylval = new VariableNode(yytext, ProgramTree.lineCount); return (int)Tokens.Variable;
             break;
         case 28: // Recognized '"{"',	Shortest string "{"
 return (int)Tokens.OpenBracket;
@@ -1121,7 +1121,7 @@ return (int)Tokens.Write;
 return (int)Tokens.While;
             break;
         case 43: // Recognized '{BoolVal}',	Shortest string "true"
-yylval = new BoolNode(bool.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.BoolVal;
+yylval = new BoolNode(bool.Parse(yytext), ProgramTree.lineCount); return (int)Tokens.BoolVal;
             break;
         case 46: // Recognized '"read"',	Shortest string "read"
 return (int)Tokens.Read;
@@ -1154,7 +1154,7 @@ yylval = new ComparisonNode(ComparisonType.Equal); return (int)Tokens.Comparison
 yylval = new ComparisonNode(ComparisonType.LessOrEqual); return (int)Tokens.Comparison;
             break;
         case 72: // Recognized '{DoubleVal}',	Shortest string "0.0"
-yylval = new DoubleNode(double.Parse(yytext), Compiler.ProgramTree.lineCount); return (int)Tokens.DoubleVal;
+yylval = new DoubleNode(double.Parse(yytext), ProgramTree.lineCount); return (int)Tokens.DoubleVal;
             break;
         case 73: // Recognized '"(int)"',	Shortest string "(int)"
 return (int)Tokens.IntCast;
@@ -1166,7 +1166,7 @@ return (int)Tokens.DoubleCast;
 yylval = new LogicOpNode(LogicOpType.And); return (int)Tokens.And;
             break;
         case 76: // Recognized '{String}',	Shortest string "\"\""
-yylval = new StringNode(yytext, Compiler.ProgramTree.lineCount); return (int)Tokens.String;
+yylval = new StringNode(yytext, ProgramTree.lineCount); return (int)Tokens.String;
             break;
         case 77: // Recognized '"!="',	Shortest string "!="
 yylval = new ComparisonNode(ComparisonType.NotEqual); return (int)Tokens.Comparison;
@@ -1228,6 +1228,16 @@ yylval = new ComparisonNode(ComparisonType.NotEqual); return (int)Tokens.Compari
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal void ECHO() { Console.Out.Write(yytext); }
         
+#region UserCodeSection
+
+ProgramNode ProgramTree;
+
+public Scanner(FileStream stream, ProgramNode tree) : this(stream)
+{
+	ProgramTree = tree;
+}
+
+#endregion
     } // end class $Scanner
 
 // ==============================================================
