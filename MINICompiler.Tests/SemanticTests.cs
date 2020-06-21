@@ -21,7 +21,7 @@ namespace MINICompiler.Tests
         private Parser PrepareFile(int index, ProgramNode node)
         {
             FileStream source = new FileStream(files[index], FileMode.Open);
-            Scanner scanner = new Scanner(source);
+            Scanner scanner = new Scanner(source, node);
             Parser parser = new Parser(scanner, node);
             return parser;
         }
@@ -32,7 +32,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(0, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }
@@ -43,7 +43,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(1, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }
@@ -54,7 +54,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(2, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }
@@ -65,9 +65,9 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(3, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
-            Assert.AreEqual((int)ErrorCode.UndeclaredVariable, result);
+            Assert.AreEqual((int)SemanticErrorCode.UndeclaredVariable, result);
         }
 
         [TestMethod]
@@ -76,9 +76,9 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(4, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
-            Assert.AreEqual((int)ErrorCode.UndeclaredVariable, result);
+            Assert.AreEqual((int)SemanticErrorCode.UndeclaredVariable, result);
         }
 
         [TestMethod]
@@ -87,9 +87,9 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(5, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
-            Assert.AreEqual((int)ErrorCode.UndeclaredVariable, result);
+            Assert.AreEqual((int)SemanticErrorCode.UndeclaredVariable, result);
         }
 
         [TestMethod]
@@ -98,9 +98,9 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(6, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
-            Assert.AreEqual((int)ErrorCode.IllegalCast, result);
+            Assert.AreEqual((int)SemanticErrorCode.IllegalCast, result);
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace MINICompiler.Tests
             ProgramNode node = new ProgramNode();
             Parser parser = PrepareFile(7, node);
             parser.Parse();
-            CodeChecker checker = new CodeChecker(node);
+            ProgramTreeChecker checker = new ProgramTreeChecker(node);
             int result = checker.CheckSemantics();
             Assert.AreEqual(0, result);
         }

@@ -10,13 +10,10 @@ namespace CILPreview
     {
         static void Main(string[] args)
         {
-            int a = int.Parse(Console.ReadLine());
-            while (a > 5)
-            {
-                Console.Write(a);
-                Console.Write("\n");
-                a = a - 1;
-            }
+            double d = double.Parse(Console.ReadLine());
+            Console.Write(string.Format(
+            System.Globalization.CultureInfo.InvariantCulture, "{0:0.000000}", d));
+
         }
     }
 }
