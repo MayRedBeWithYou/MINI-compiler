@@ -4,13 +4,7 @@
 
 %YYSTYPE Node
 
-%right Assign
-%left Or And
-%left Comparison
-%left Add Sub
-%left Mult Div
-%left BitOr BitAnd
-%right Tilde Not IntCast DoubleCast
+%token Assign Or And Comparison Add Sub Mult Div BitOr BitAnd Tilde Not IntCast DoubleCast
 
 %token Program Write Read If Else While Return
 %token OpenPar ClosePar OpenBracket CloseBracket Semicolon
@@ -129,96 +123,119 @@ assign			: Variable Assign exp
 				}
 				;
 
-exp				: OpenPar exp ClosePar 
+exp				: priority7
+				;
+
+priority7		: priority6
+				| assign
+				;
+
+priority6		: priority5
+				| priority6 And priority5
+				{
+					LogicOpNode node = $2 as LogicOpNode;
+					node.left = $1 as ExpressionNode;
+					node.right = $3 as ExpressionNode;
+					$$ = node;
+				}
+				| priority6 Or priority5
+				{
+					LogicOpNode node = $2 as LogicOpNode;
+					node.left = $1 as ExpressionNode;
+					node.right = $3 as ExpressionNode;
+					$$ = node;
+				}
+				;
+priority5		: priority4
+				| priority5 Comparison priority4 
+				{
+					ComparisonNode node = $2 as ComparisonNode;
+					$$ = AssignToComparisonOp(node, $1 as ExpressionNode, $3 as ExpressionNode);
+				}
+				;
+
+priority4		: priority3
+				| priority4 Add priority3
+				{
+					BinaryOpNode node = $2 as BinaryOpNode;
+					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
+				}
+				| priority4 Sub priority3
+				{
+					BinaryOpNode node = $2 as BinaryOpNode;
+					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
+				}
+				;
+
+priority3		: priority2
+				| priority3 Mult priority2 
+				{
+					BinaryOpNode node = $2 as BinaryOpNode;
+					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
+				}
+				| priority3 Div priority2 
+				{
+					BinaryOpNode node = $2 as BinaryOpNode;
+					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
+				}
+				;
+
+priority2		: priority1
+				| priority2 BitAnd priority1 
+				{
+					BinaryOpNode node = $2 as BinaryOpNode;
+					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
+				}
+				| priority2 BitOr priority1
+				{
+					BinaryOpNode node = $2 as BinaryOpNode;
+					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
+				}
+				;
+priority1		: priority0
+				|
+				OpenPar priority7 ClosePar 
 				{
 					ParenthesisNode node = new ParenthesisNode($1.Line);
 					node.content = $2 as ExpressionNode;
 					$$ = node;
-				} 
-				| exp Add exp
-				{
-					BinaryOpNode node = $2 as BinaryOpNode;
-					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
 				}
-				| exp Sub exp
-				{
-					BinaryOpNode node = $2 as BinaryOpNode;
-					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
-				}
-				| exp Mult exp 
-				{
-					BinaryOpNode node = $2 as BinaryOpNode;
-					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
-				}
-				| exp Div exp 
-				{
-					BinaryOpNode node = $2 as BinaryOpNode;
-					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
-				}
-				| exp BitAnd exp 
-				{
-					BinaryOpNode node = $2 as BinaryOpNode;
-					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
-				}
-				| exp BitOr exp
-				{
-					BinaryOpNode node = $2 as BinaryOpNode;
-					$$ = AssignToBinaryOp(node, $1 as ExpressionNode, $3 as ExpressionNode); 
-				}
-				| Variable
-				| IntCast exp
+				| IntCast priority1
 				{
 					IntCastNode node = new IntCastNode($1.Line);
 					node.content = $2 as ExpressionNode;
 					$$ = node;
 				}
-				| DoubleCast exp
+				| DoubleCast priority1
 				{
 					DoubleCastNode node = new DoubleCastNode($1.Line);
 					node.content = $2 as ExpressionNode;
 					$$ = node;
-				}				
-				| IntVal
-				| DoubleVal
-				| BoolVal
-				| Not exp
+				}
+				| Not priority1
 				{
 					NotNode node = new NotNode($1.Line);
 					node.content = $2 as ExpressionNode;
 					$$ = node;
 				}
-				| Tilde exp
+				| Tilde priority1
 				{
 					NegNode node = new NegNode($1.Line);
 					node.content = $2 as ExpressionNode;
 					$$ = node;
 				}
-				| Sub exp
+				| Sub priority1
 				{
 					MinusNode node = new MinusNode($1.Line);
 					node.content = $2 as ExpressionNode;
 					$$ = node;
 				}
-				| exp And exp
-				{
-					LogicOpNode node = $2 as LogicOpNode;
-					node.left = $1 as ExpressionNode;
-					node.right = $3 as ExpressionNode;
-					$$ = node;
-				}
-				| exp Or exp
-				{
-					LogicOpNode node = $2 as LogicOpNode;
-					node.left = $1 as ExpressionNode;
-					node.right = $3 as ExpressionNode;
-					$$ = node;
-				}
-				| exp Comparison exp 
-				{
-					ComparisonNode node = $2 as ComparisonNode;
-					$$ = AssignToComparisonOp(node, $1 as ExpressionNode, $3 as ExpressionNode);
-				}
-				| assign
+				;
+
+priority0		: Variable				
+				| IntVal
+				| DoubleVal
+				| BoolVal
 				;
 
 if				: If OpenPar exp ClosePar instruction

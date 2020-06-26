@@ -1,7 +1,17 @@
 program
 {
     double a;
-    double b;
-    a = b = 2 * 2 + 2;
+    int b;
+    b = 5;
+    a = b = 2 + 2;
     write a;
+    write "\n";
+    write b;
+    write "\n";
+    write 2 + 2 * 5 + 3;
+    write "\n";
+    write 12/3/2/2;
+    write "\n";
+    write 12/3/(2/2);
+    write "\n";
 }
