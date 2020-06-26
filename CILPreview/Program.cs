@@ -10,10 +10,10 @@ namespace CILPreview
     {
         static void Main(string[] args)
         {
-            double d = double.Parse(Console.ReadLine());
-            Console.Write(string.Format(
-            System.Globalization.CultureInfo.InvariantCulture, "{0:0.000000}", d));
-
+            double a = double.Parse(Console.ReadLine());
+            double b;
+            b = a + 3;
+            Console.Write(b);
         }
     }
 }

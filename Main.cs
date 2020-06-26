@@ -529,7 +529,6 @@ namespace MINICompiler
                 sb.AppendLine("stloc.s " + i);
             }
 
-            // Parse the tree again
             sb.Append(node.GenerateCode());
 
             sb.AppendLine("ret");
