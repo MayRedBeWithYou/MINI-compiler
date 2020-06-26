@@ -1,17 +1,13 @@
-program
+program 
 {
-    double a;
-    int b;
-    b = 5;
-    a = b = 2 + 2;
-    write a;
-    write "\n";
-    write b;
-    write "\n";
-    write 2 + 2 * 5 + 3;
-    write "\n";
-    write 12/3/2/2;
-    write "\n";
-    write 12/3/(2/2);
-    write "\n";
+	int a;
+	int b;
+	int c;
+	a = (b = 3) + (c = 4);
+	write a;
+	write "\n";
+	write b;
+	write "\n";
+	write c;
+	write "\n";
 }

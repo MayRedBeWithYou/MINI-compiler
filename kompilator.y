@@ -113,7 +113,12 @@ init			: Int Variable
 					$$ = node;
 				}
 				;
-assign			: Variable Assign exp 
+
+exp				: priority7
+				;
+
+priority7		: priority6
+				| Variable Assign exp 
 				{
 					AssignNode node = new AssignNode($1.Line);
 					node.left = $1 as VariableNode;
@@ -121,13 +126,6 @@ assign			: Variable Assign exp
 					node.ShouldReturnValue = true;
 					$$ = node;
 				}
-				;
-
-exp				: priority7
-				;
-
-priority7		: priority6
-				| assign
 				;
 
 priority6		: priority5
